@@ -56,7 +56,7 @@ namespace PassengerTransportApp
                 picBus.Image = null; // Если картинки нет
             }
         }
-
+        
         private void btnUpload_Click(object sender, EventArgs e)
         {
             if (dgvBuses.SelectedRows.Count == 0) return;
