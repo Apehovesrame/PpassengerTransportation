@@ -23,9 +23,10 @@ namespace PassengerTransportApp
         private void btnShowReport_Click(object sender, EventArgs e)
         {
             // SQL запрос с аналитикой (GROUP BY)
-            // Считаем выручку и пассажиров по маршрутам за выбранный период
+            // Добавили TO_CHAR(tr.departure_datetime, 'DD.MM.YYYY') чтобы видеть дату
             string sql = @"
                 SELECT 
+                    TO_CHAR(tr.departure_datetime, 'DD.MM.YYYY') AS ""Дата рейса"",
                     r.route_number AS ""Номер маршрута"",
                     r.departure_point || ' - ' || r.destination_point AS ""Направление"",
                     COUNT(t.ticket_id) AS ""Продано билетов"",
@@ -34,8 +35,12 @@ namespace PassengerTransportApp
                 JOIN Trips tr ON t.trip_id = tr.trip_id
                 JOIN Routes r ON tr.route_id = r.route_id
                 WHERE t.sale_date >= @start AND t.sale_date <= @end
-                GROUP BY r.route_number, r.departure_point, r.destination_point
-                ORDER BY SUM(t.cost) DESC";
+                
+                -- Группируем по ДАТЕ (без времени), номеру и направлению
+                GROUP BY DATE(tr.departure_datetime), TO_CHAR(tr.departure_datetime, 'DD.MM.YYYY'), r.route_number, r.departure_point, r.destination_point
+                
+                -- Сортируем: Сначала свежие даты, потом по номеру маршрута
+                ORDER BY DATE(tr.departure_datetime) DESC, r.route_number";
 
             // Важно: в PostgreSQL для сравнения дат с TIMESTAMPTZ лучше передавать DateTime
             DataTable dt = Database.ExecuteQuery(sql,

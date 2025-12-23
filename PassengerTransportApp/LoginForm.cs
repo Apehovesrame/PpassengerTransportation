@@ -34,9 +34,11 @@ namespace PassengerTransportApp
                 JOIN Authorizations a ON u.login = a.login
                 WHERE u.login = @login AND a.password_hash = @pass";
 
+            string passwordHash = HashHelper.ComputeSha256Hash(password);
+
             DataTable dt = Database.ExecuteQuery(sql,
                 new NpgsqlParameter("@login", login),
-                new NpgsqlParameter("@pass", password));
+                new NpgsqlParameter("@pass", passwordHash));
 
             if (dt != null && dt.Rows.Count > 0)
             {

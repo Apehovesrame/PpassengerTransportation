@@ -95,6 +95,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddUserForm.Designer.cs">
+      <DependentUpon>AddUserForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="BusManagerForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,6 +114,7 @@
     <Compile Include="DriverManagerForm.Designer.cs">
       <DependentUpon>DriverManagerForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="HashHelper.cs" />
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -139,6 +146,24 @@
     </Compile>
     <Compile Include="ReportsForm.Designer.cs">
       <DependentUpon>ReportsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RouteAddForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RouteAddForm.Designer.cs">
+      <DependentUpon>RouteAddForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RouteManagerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RouteManagerForm.Designer.cs">
+      <DependentUpon>RouteManagerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RouteStopEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RouteStopEditForm.Designer.cs">
+      <DependentUpon>RouteStopEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="TicketSaleForm.cs">
       <SubType>Form</SubType>
@@ -178,6 +203,9 @@
     </Compile>
     <EmbeddedResource Include="ReportsForm.resx">
       <DependentUpon>ReportsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RouteManagerForm.resx">
+      <DependentUpon>RouteManagerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TicketSaleForm.resx">
       <DependentUpon>TicketSaleForm.cs</DependentUpon>

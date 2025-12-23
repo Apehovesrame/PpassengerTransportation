@@ -27,7 +27,6 @@ namespace PassengerTransportApp
 
         private void ApplyRolePermissions()
         {
-            // 1. Скрываем все административные кнопки
             btnBuses.Visible = false;
             btnReports.Visible = false;
             btnManageDrivers.Visible = false;
@@ -36,12 +35,12 @@ namespace PassengerTransportApp
             btnEditTrip.Visible = false;
             btnDeleteTrip.Visible = false;
             btnShowPassengers.Visible = true;
-
-            // Скрываем элементы "Мягкого удаления"
             chkShowDeleted.Visible = false;
             btnRestoreTrip.Visible = false;
+            btnHardDelete.Visible = false;
+            btnClearArchive.Visible = false;
+            btnAddUser.Visible = false;
 
-            // 2. Включаем в зависимости от роли
             switch (_userRole)
             {
                 case "Администратор":
@@ -52,8 +51,10 @@ namespace PassengerTransportApp
                     btnSellTicket.Visible = true;
                     btnEditTrip.Visible = true;
                     btnDeleteTrip.Visible = true;
-                    chkShowDeleted.Visible = true; // Админ видит архив
+                    chkShowDeleted.Visible = true;
                     btnShowPassengers.Visible = true;
+                    btnRouteManager.Visible = true;
+                    btnAddUser.Visible = true;
                     break;
 
                 case "Кассир":
@@ -61,18 +62,17 @@ namespace PassengerTransportApp
 
                     break;
 
-                case "Менеджер":
+                case "Диспетчер":
                     btnBuses.Visible = true;
                     btnManageDrivers.Visible = true;
                     btnAddTrip.Visible = true;
                     btnEditTrip.Visible = true;
                     btnDeleteTrip.Visible = true;
-                    chkShowDeleted.Visible = true; // Менеджер тоже может восстанавливать
+                    chkShowDeleted.Visible = true;
                     btnShowPassengers.Visible = true;
                     break;
             }
         }
-        // Метод для склонения слов (число, "билет", "билета", "билетов")
         private string GetDeclension(long number, string nominativ, string genetiv, string plural)
         {
             number = Math.Abs(number) % 100;
@@ -84,7 +84,6 @@ namespace PassengerTransportApp
         }
         private void LoadTrips()
         {
-            // Фильтр: показываем активные (false) или удаленные (true)
             string deletedFilter = chkShowDeleted.Checked ? "TRUE" : "FALSE";
 
             string sql = $@" 
@@ -109,29 +108,37 @@ namespace PassengerTransportApp
             if (dgvTrips.Columns["trip_id"] != null)
                 dgvTrips.Columns["trip_id"].Visible = false;
 
-            // Визуальное оформление режима "Архив"
+            // УПРАВЛЕНИЕ ВИДИМОСТЬЮ КНОПОК
+            bool isAdminOrManager = _userRole == "Администратор" || _userRole == "Диспетчер";
+
             if (chkShowDeleted.Checked)
             {
                 dgvTrips.BackgroundColor = Color.LightGray;
-                btnRestoreTrip.Visible = true;  // В архиве можно восстанавливать
-                btnDeleteTrip.Visible = false;  // Но нельзя удалять
-                btnEditTrip.Visible = false;    // И нельзя редактировать
-                btnSellTicket.Visible = false;  // И нельзя продавать
+
+                btnRestoreTrip.Visible = true;
+                btnHardDelete.Visible = isAdminOrManager;   
+                btnClearArchive.Visible = isAdminOrManager; 
+
+                btnDeleteTrip.Visible = false;
+                btnEditTrip.Visible = false;
+                btnSellTicket.Visible = false;
             }
             else
             {
+                // РЕЖИМ АКТИВНЫХ РЕЙСОВ
                 dgvTrips.BackgroundColor = Color.White;
-                btnRestoreTrip.Visible = false;
 
-                // Кнопки действий видны только если роль позволяет (проверка была в ApplyRolePermissions, но тут мы обновляем состояние)
-                bool isAdminOrManager = _userRole == "Администратор" || _userRole == "Менеджер";
+                btnRestoreTrip.Visible = false;
+                btnHardDelete.Visible = false;   
+                btnClearArchive.Visible = false; 
+
                 btnDeleteTrip.Visible = isAdminOrManager;
                 btnEditTrip.Visible = isAdminOrManager;
                 btnSellTicket.Visible = true;
             }
         }
 
-        // === УДАЛЕНИЕ (В АРХИВ) ===
+        // УДАЛЕНИЕ (В АРХИВ)
         private void btnDeleteTrip_Click(object sender, EventArgs e)
         {
             if (dgvTrips.SelectedRows.Count == 0)
@@ -142,7 +149,6 @@ namespace PassengerTransportApp
 
             int tripId = Convert.ToInt32(dgvTrips.SelectedRows[0].Cells["trip_id"].Value);
 
-            // 1. Проверяем, есть ли проданные билеты
             string sqlCheck = $"SELECT COUNT(*) FROM Tickets WHERE trip_id = {tripId}";
             long soldCount = (long)Database.ExecuteQuery(sqlCheck).Rows[0][0];
 
@@ -158,10 +164,8 @@ namespace PassengerTransportApp
                 {
                     try
                     {
-                        // А. Удаляем все билеты на этот рейс (Возврат средств)
                         Database.ExecuteNonQuery($"DELETE FROM Tickets WHERE trip_id = {tripId}");
 
-                        // Б. Отправляем рейс в архив (Мягкое удаление)
                         Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = TRUE WHERE trip_id = {tripId}");
 
                         MessageBox.Show($"Успешно возвращено {soldCount} билетов. Рейс отменен.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -175,7 +179,6 @@ namespace PassengerTransportApp
             }
             else
             {
-                // Сценарий без билетов (просто удаление)
                 if (MessageBox.Show("Переместить рейс в архив (отменить)?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = TRUE WHERE trip_id = {tripId}");
@@ -183,8 +186,66 @@ namespace PassengerTransportApp
                 }
             }
         }
+        // УДАЛИТЬ НАВСЕГДА (Один рейс)
+        private void btnHardDelete_Click(object sender, EventArgs e)
+        {
+            if (dgvTrips.SelectedRows.Count == 0) return;
 
-        // === ВОССТАНОВЛЕНИЕ ===
+            int tripId = Convert.ToInt32(dgvTrips.SelectedRows[0].Cells["trip_id"].Value);
+
+            if (MessageBox.Show("Вы уверены, что хотите УДАЛИТЬ НАВСЕГДА эту запись?\nВосстановление будет невозможно!",
+                "Полное удаление", MessageBoxButtons.YesNo, MessageBoxIcon.Stop) == DialogResult.Yes)
+            {
+                try
+                {
+                    Database.ExecuteNonQuery($"DELETE FROM Tickets WHERE trip_id = {tripId}");
+                    Database.ExecuteNonQuery($"DELETE FROM Trips_Drivers WHERE trip_id = {tripId}");
+                    Database.ExecuteNonQuery($"DELETE FROM Trips WHERE trip_id = {tripId}");
+
+                    LoadTrips();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка удаления: " + ex.Message);
+                }
+            }
+        }
+
+        // ОЧИСТИТЬ АРХИВ (Все удаленные)
+        private void btnClearArchive_Click(object sender, EventArgs e)
+        {
+            if (dgvTrips.Rows.Count == 0)
+            {
+                MessageBox.Show("Архив уже пуст.");
+                return;
+            }
+
+            if (MessageBox.Show("ВНИМАНИЕ! Вы собираетесь полностью очистить архив.\nВсе удаленные рейсы будут уничтожены безвозвратно.\nПродолжить?",
+                "Очистка архива", MessageBoxButtons.YesNo, MessageBoxIcon.Stop) == DialogResult.Yes)
+            {
+                try
+                {
+                    Database.ExecuteNonQuery(@"
+                        DELETE FROM Tickets 
+                        WHERE trip_id IN (SELECT trip_id FROM Trips WHERE is_deleted = TRUE)");
+
+                    Database.ExecuteNonQuery(@"
+                        DELETE FROM Trips_Drivers 
+                        WHERE trip_id IN (SELECT trip_id FROM Trips WHERE is_deleted = TRUE)");
+
+                    Database.ExecuteNonQuery("DELETE FROM Trips WHERE is_deleted = TRUE");
+
+                    MessageBox.Show("Архив успешно очищен.", "Готово");
+                    LoadTrips();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка очистки: " + ex.Message);
+                }
+            }
+        }
+
+        // ВОССТАНОВЛЕНИЕ
         private void btnRestoreTrip_Click(object sender, EventArgs e)
         {
             if (dgvTrips.SelectedRows.Count == 0) return;
@@ -195,10 +256,14 @@ namespace PassengerTransportApp
             {
                 Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = FALSE WHERE trip_id = {tripId}");
 
-                // Сразу выходим из режима архива, чтобы увидеть результат
                 chkShowDeleted.Checked = false;
                 LoadTrips();
             }
+        }
+        private void btnAddUser_Click(object sender, EventArgs e)
+        {
+            AddUserForm form = new AddUserForm();
+            form.ShowDialog();
         }
 
         private void chkShowDeleted_CheckedChanged(object sender, EventArgs e)
@@ -234,6 +299,7 @@ namespace PassengerTransportApp
             PassengerListForm form = new PassengerListForm(tripId);
             form.ShowDialog();
         }
+
         private void btnAddTrip_Click(object sender, EventArgs e)
         {
             TripEditForm form = new TripEditForm(_currentUserId);
@@ -279,6 +345,27 @@ namespace PassengerTransportApp
         private void dgvTrips_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
 
         private void panelTop_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void btnRouteManager_Click_1(object sender, EventArgs e)
+        {
+            RouteManagerForm form = new RouteManagerForm();
+            form.ShowDialog();
+        }
+
+        private void panelTop_Paint_1(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void statusLabelUser_Click(object sender, EventArgs e)
         {
 
         }

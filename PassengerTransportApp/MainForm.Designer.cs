@@ -19,8 +19,7 @@
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panelTop = new System.Windows.Forms.Panel();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.statusLabelUser = new System.Windows.Forms.ToolStripStatusLabel();
+            this.btnRouteManager = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.btnSellTicket = new System.Windows.Forms.Button();
             this.btnReports = new System.Windows.Forms.Button();
@@ -30,8 +29,13 @@
             this.btnEditTrip = new System.Windows.Forms.Button();
             this.btnDeleteTrip = new System.Windows.Forms.Button();
             this.btnRestoreTrip = new System.Windows.Forms.Button();
-            this.btnShowPassengers = new System.Windows.Forms.Button(); // <-- НОВАЯ КНОПКА
+            this.btnShowPassengers = new System.Windows.Forms.Button();
             this.chkShowDeleted = new System.Windows.Forms.CheckBox();
+            this.btnHardDelete = new System.Windows.Forms.Button();
+            this.btnClearArchive = new System.Windows.Forms.Button();
+            this.btnAddUser = new System.Windows.Forms.Button();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.statusLabelUser = new System.Windows.Forms.ToolStripStatusLabel();
             this.dgvTrips = new System.Windows.Forms.DataGridView();
             this.panelTop.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -41,6 +45,7 @@
             // panelTop
             // 
             this.panelTop.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panelTop.Controls.Add(this.btnRouteManager);
             this.panelTop.Controls.Add(this.btnRefresh);
             this.panelTop.Controls.Add(this.btnSellTicket);
             this.panelTop.Controls.Add(this.btnReports);
@@ -52,33 +57,34 @@
             this.panelTop.Controls.Add(this.btnRestoreTrip);
             this.panelTop.Controls.Add(this.btnShowPassengers);
             this.panelTop.Controls.Add(this.chkShowDeleted);
+            this.panelTop.Controls.Add(this.btnHardDelete);
+            this.panelTop.Controls.Add(this.btnClearArchive);
+            this.panelTop.Controls.Add(this.btnAddUser);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
+            this.panelTop.Margin = new System.Windows.Forms.Padding(6);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(1284, 100);
+            this.panelTop.Size = new System.Drawing.Size(2568, 192);
             this.panelTop.TabIndex = 0;
+            this.panelTop.Paint += new System.Windows.Forms.PaintEventHandler(this.panelTop_Paint_1);
             // 
-            // statusStrip1
+            // btnRouteManager
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.statusLabelUser});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 639);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1284, 22);
-            this.statusStrip1.TabIndex = 2;
-            // 
-            // statusLabelUser
-            // 
-            this.statusLabelUser.Name = "statusLabelUser";
-            this.statusLabelUser.Size = new System.Drawing.Size(112, 17);
-            this.statusLabelUser.Text = "Пользователь: ...";
+            this.btnRouteManager.Location = new System.Drawing.Point(1445, 23);
+            this.btnRouteManager.Name = "btnRouteManager";
+            this.btnRouteManager.Size = new System.Drawing.Size(187, 96);
+            this.btnRouteManager.TabIndex = 12;
+            this.btnRouteManager.Text = "Маршруты";
+            this.btnRouteManager.UseVisualStyleBackColor = true;
+            this.btnRouteManager.Click += new System.EventHandler(this.btnRouteManager_Click_1);
             // 
             // btnRefresh
             // 
             this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRefresh.Location = new System.Drawing.Point(1172, 12);
+            this.btnRefresh.Location = new System.Drawing.Point(2344, 23);
+            this.btnRefresh.Margin = new System.Windows.Forms.Padding(6);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(100, 50);
+            this.btnRefresh.Size = new System.Drawing.Size(200, 96);
             this.btnRefresh.TabIndex = 1;
             this.btnRefresh.Text = "Обновить";
             this.btnRefresh.UseVisualStyleBackColor = true;
@@ -90,9 +96,10 @@
             this.btnSellTicket.BackColor = System.Drawing.Color.LightGreen;
             this.btnSellTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSellTicket.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnSellTicket.Location = new System.Drawing.Point(1012, 12);
+            this.btnSellTicket.Location = new System.Drawing.Point(2024, 23);
+            this.btnSellTicket.Margin = new System.Windows.Forms.Padding(6);
             this.btnSellTicket.Name = "btnSellTicket";
-            this.btnSellTicket.Size = new System.Drawing.Size(154, 50);
+            this.btnSellTicket.Size = new System.Drawing.Size(308, 96);
             this.btnSellTicket.TabIndex = 0;
             this.btnSellTicket.Text = "ПРОДАТЬ БИЛЕТ";
             this.btnSellTicket.UseVisualStyleBackColor = false;
@@ -100,9 +107,10 @@
             // 
             // btnReports
             // 
-            this.btnReports.Location = new System.Drawing.Point(400, 12);
+            this.btnReports.Location = new System.Drawing.Point(800, 23);
+            this.btnReports.Margin = new System.Windows.Forms.Padding(6);
             this.btnReports.Name = "btnReports";
-            this.btnReports.Size = new System.Drawing.Size(90, 50);
+            this.btnReports.Size = new System.Drawing.Size(180, 96);
             this.btnReports.TabIndex = 3;
             this.btnReports.Text = "Отчеты";
             this.btnReports.UseVisualStyleBackColor = true;
@@ -110,9 +118,10 @@
             // 
             // btnBuses
             // 
-            this.btnBuses.Location = new System.Drawing.Point(304, 12);
+            this.btnBuses.Location = new System.Drawing.Point(608, 23);
+            this.btnBuses.Margin = new System.Windows.Forms.Padding(6);
             this.btnBuses.Name = "btnBuses";
-            this.btnBuses.Size = new System.Drawing.Size(90, 50);
+            this.btnBuses.Size = new System.Drawing.Size(180, 96);
             this.btnBuses.TabIndex = 4;
             this.btnBuses.Text = "Автопарк";
             this.btnBuses.UseVisualStyleBackColor = true;
@@ -120,9 +129,10 @@
             // 
             // btnManageDrivers
             // 
-            this.btnManageDrivers.Location = new System.Drawing.Point(208, 12);
+            this.btnManageDrivers.Location = new System.Drawing.Point(416, 23);
+            this.btnManageDrivers.Margin = new System.Windows.Forms.Padding(6);
             this.btnManageDrivers.Name = "btnManageDrivers";
-            this.btnManageDrivers.Size = new System.Drawing.Size(90, 50);
+            this.btnManageDrivers.Size = new System.Drawing.Size(180, 96);
             this.btnManageDrivers.TabIndex = 5;
             this.btnManageDrivers.Text = "Водители";
             this.btnManageDrivers.UseVisualStyleBackColor = true;
@@ -133,9 +143,10 @@
             this.btnAddTrip.BackColor = System.Drawing.Color.SteelBlue;
             this.btnAddTrip.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddTrip.ForeColor = System.Drawing.Color.White;
-            this.btnAddTrip.Location = new System.Drawing.Point(12, 12);
+            this.btnAddTrip.Location = new System.Drawing.Point(24, 23);
+            this.btnAddTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnAddTrip.Name = "btnAddTrip";
-            this.btnAddTrip.Size = new System.Drawing.Size(190, 50);
+            this.btnAddTrip.Size = new System.Drawing.Size(380, 96);
             this.btnAddTrip.TabIndex = 6;
             this.btnAddTrip.Text = "+ Создать Рейс";
             this.btnAddTrip.UseVisualStyleBackColor = false;
@@ -143,9 +154,10 @@
             // 
             // btnEditTrip
             // 
-            this.btnEditTrip.Location = new System.Drawing.Point(12, 68);
+            this.btnEditTrip.Location = new System.Drawing.Point(24, 131);
+            this.btnEditTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnEditTrip.Name = "btnEditTrip";
-            this.btnEditTrip.Size = new System.Drawing.Size(90, 25);
+            this.btnEditTrip.Size = new System.Drawing.Size(180, 48);
             this.btnEditTrip.TabIndex = 7;
             this.btnEditTrip.Text = "Изменить";
             this.btnEditTrip.UseVisualStyleBackColor = true;
@@ -153,9 +165,10 @@
             // 
             // btnDeleteTrip
             // 
-            this.btnDeleteTrip.Location = new System.Drawing.Point(108, 68);
+            this.btnDeleteTrip.Location = new System.Drawing.Point(216, 131);
+            this.btnDeleteTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnDeleteTrip.Name = "btnDeleteTrip";
-            this.btnDeleteTrip.Size = new System.Drawing.Size(94, 25);
+            this.btnDeleteTrip.Size = new System.Drawing.Size(188, 48);
             this.btnDeleteTrip.TabIndex = 8;
             this.btnDeleteTrip.Text = "Удалить";
             this.btnDeleteTrip.UseVisualStyleBackColor = true;
@@ -163,9 +176,10 @@
             // 
             // btnRestoreTrip
             // 
-            this.btnRestoreTrip.Location = new System.Drawing.Point(108, 68);
+            this.btnRestoreTrip.Location = new System.Drawing.Point(216, 131);
+            this.btnRestoreTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnRestoreTrip.Name = "btnRestoreTrip";
-            this.btnRestoreTrip.Size = new System.Drawing.Size(94, 25);
+            this.btnRestoreTrip.Size = new System.Drawing.Size(188, 48);
             this.btnRestoreTrip.TabIndex = 10;
             this.btnRestoreTrip.Text = "Восстановить";
             this.btnRestoreTrip.UseVisualStyleBackColor = true;
@@ -173,9 +187,10 @@
             // 
             // btnShowPassengers
             // 
-            this.btnShowPassengers.Location = new System.Drawing.Point(496, 12);
+            this.btnShowPassengers.Location = new System.Drawing.Point(992, 23);
+            this.btnShowPassengers.Margin = new System.Windows.Forms.Padding(6);
             this.btnShowPassengers.Name = "btnShowPassengers";
-            this.btnShowPassengers.Size = new System.Drawing.Size(120, 50);
+            this.btnShowPassengers.Size = new System.Drawing.Size(240, 96);
             this.btnShowPassengers.TabIndex = 11;
             this.btnShowPassengers.Text = "Список пассажиров";
             this.btnShowPassengers.UseVisualStyleBackColor = true;
@@ -184,13 +199,65 @@
             // chkShowDeleted
             // 
             this.chkShowDeleted.AutoSize = true;
-            this.chkShowDeleted.Location = new System.Drawing.Point(215, 73);
+            this.chkShowDeleted.Location = new System.Drawing.Point(430, 140);
+            this.chkShowDeleted.Margin = new System.Windows.Forms.Padding(6);
             this.chkShowDeleted.Name = "chkShowDeleted";
-            this.chkShowDeleted.Size = new System.Drawing.Size(133, 17);
+            this.chkShowDeleted.Size = new System.Drawing.Size(254, 29);
             this.chkShowDeleted.TabIndex = 9;
             this.chkShowDeleted.Text = "Показать удаленные";
             this.chkShowDeleted.UseVisualStyleBackColor = true;
             this.chkShowDeleted.CheckedChanged += new System.EventHandler(this.chkShowDeleted_CheckedChanged);
+            // 
+            // btnHardDelete
+            // 
+            this.btnHardDelete.ForeColor = System.Drawing.Color.Red;
+            this.btnHardDelete.Location = new System.Drawing.Point(24, 131);
+            this.btnHardDelete.Name = "btnHardDelete";
+            this.btnHardDelete.Size = new System.Drawing.Size(180, 48);
+            this.btnHardDelete.TabIndex = 13;
+            this.btnHardDelete.Text = "Удалить навсегда";
+            this.btnHardDelete.UseVisualStyleBackColor = true;
+            this.btnHardDelete.Click += new System.EventHandler(this.btnHardDelete_Click);
+            // 
+            // btnClearArchive
+            // 
+            this.btnClearArchive.ForeColor = System.Drawing.Color.DarkRed;
+            this.btnClearArchive.Location = new System.Drawing.Point(440, 131);
+            this.btnClearArchive.Name = "btnClearArchive";
+            this.btnClearArchive.Size = new System.Drawing.Size(120, 48);
+            this.btnClearArchive.TabIndex = 14;
+            this.btnClearArchive.Text = "Очистить архив";
+            this.btnClearArchive.UseVisualStyleBackColor = true;
+            this.btnClearArchive.Click += new System.EventHandler(this.btnClearArchive_Click);
+            // 
+            // btnAddUser
+            // 
+            this.btnAddUser.Location = new System.Drawing.Point(1241, 23);
+            this.btnAddUser.Name = "btnAddUser";
+            this.btnAddUser.Size = new System.Drawing.Size(187, 96);
+            this.btnAddUser.TabIndex = 15;
+            this.btnAddUser.Text = "+ Сотрудник";
+            this.btnAddUser.UseVisualStyleBackColor = true;
+            this.btnAddUser.Click += new System.EventHandler(this.btnAddUser_Click);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusLabelUser});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 1229);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 28, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(2568, 42);
+            this.statusStrip1.TabIndex = 2;
+            this.statusStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.statusStrip1_ItemClicked);
+            // 
+            // statusLabelUser
+            // 
+            this.statusLabelUser.Name = "statusLabelUser";
+            this.statusLabelUser.Size = new System.Drawing.Size(195, 32);
+            this.statusLabelUser.Text = "Пользователь: ...";
+            this.statusLabelUser.Click += new System.EventHandler(this.statusLabelUser_Click);
             // 
             // dgvTrips
             // 
@@ -208,23 +275,26 @@
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dgvTrips.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvTrips.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvTrips.Location = new System.Drawing.Point(0, 100);
+            this.dgvTrips.Location = new System.Drawing.Point(0, 192);
+            this.dgvTrips.Margin = new System.Windows.Forms.Padding(6);
             this.dgvTrips.MultiSelect = false;
             this.dgvTrips.Name = "dgvTrips";
             this.dgvTrips.ReadOnly = true;
+            this.dgvTrips.RowHeadersWidth = 82;
             this.dgvTrips.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvTrips.Size = new System.Drawing.Size(1284, 539);
+            this.dgvTrips.Size = new System.Drawing.Size(2568, 1037);
             this.dgvTrips.TabIndex = 1;
             this.dgvTrips.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvTrips_CellContentClick);
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1284, 661);
+            this.ClientSize = new System.Drawing.Size(2568, 1271);
             this.Controls.Add(this.dgvTrips);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.panelTop);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Система управления пассажироперевозками";
@@ -248,6 +318,9 @@
         private System.Windows.Forms.DataGridView dgvTrips;
         private System.Windows.Forms.Button btnManageDrivers;
         private System.Windows.Forms.Button btnAddTrip;
+        private System.Windows.Forms.Button btnHardDelete;
+        private System.Windows.Forms.Button btnAddUser;
+        private System.Windows.Forms.Button btnClearArchive;
         private System.Windows.Forms.Button btnBuses;
         private System.Windows.Forms.Button btnEditTrip;
         private System.Windows.Forms.Button btnDeleteTrip;
@@ -256,5 +329,6 @@
         private System.Windows.Forms.CheckBox chkShowDeleted;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel statusLabelUser;
+        private System.Windows.Forms.Button btnRouteManager;
     }
 }
