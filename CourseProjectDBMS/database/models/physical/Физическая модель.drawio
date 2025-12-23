@@ -1,0 +1,164 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.8 Chrome/140.0.7339.240 Electron/38.4.0 Safari/537.36" version="28.2.8">
+  <diagram id="physical_diagram_id" name="Physical-Model-PostgreSQL">
+    <mxGraphModel dx="773" dy="549" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tbl_routes" value="&lt;b&gt;Routes&lt;/b&gt;&lt;hr&gt;route_id SERIAL PRIMARY KEY&lt;br&gt;route_number VARCHAR(20) NOT NULL UNIQUE&lt;br&gt;departure_point VARCHAR(100) NOT NULL&lt;br&gt;destination_point VARCHAR(100) NOT NULL&lt;br&gt;duration_minutes INT NOT NULL CHECK &amp;gt; 0" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="50" y="7.5" width="300" height="152.5" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_stops" value="&lt;b&gt;Stops&lt;/b&gt;&lt;hr&gt;stop_id SERIAL PRIMARY KEY&lt;br&gt;name VARCHAR(100) NOT NULL" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="770" y="41.25" width="230" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_route_stops" value="&lt;b&gt;Routes_Stops&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;route_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;stop_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;stop_order INT NOT NULL CHECK &amp;gt; 0&lt;/div&gt;&lt;div&gt;arrival_time_from_start INT NOT NULL CHECK &amp;gt;= 0&lt;/div&gt;&lt;div&gt;PRIMARY KEY (route_id, stop_id)&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="380" y="100" width="350" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_trips" value="&lt;b&gt;Trips&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;trip_id SERIAL PRIMARY KEY&lt;/div&gt;&lt;div&gt;route_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;bus_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;created_by_user_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;departure_datetime TIMESTAMPTZ NOT NULL&lt;/div&gt;&lt;div&gt;arrival_datetime TIMESTAMPTZ NOT NULL&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="25" y="480" width="310" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_buses" value="&lt;b&gt;Buses&lt;/b&gt;&lt;hr&gt;bus_id SERIAL PRIMARY KEY&lt;br&gt;license_plate VARCHAR(15) NOT NULL UNIQUE&lt;br&gt;model VARCHAR(100) NOT NULL&lt;br&gt;seat_capacity INT NOT NULL CHECK &amp;gt; 0&lt;br&gt;bus_image BYTEA" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="40" y="240" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_drivers" value="&lt;b&gt;Drivers&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;driver_id SERIAL PRIMARY KEY&lt;/div&gt;&lt;div&gt;last_name VARCHAR(50) NOT NULL&lt;/div&gt;&lt;div&gt;first_name VARCHAR(50) NOT NULL&lt;/div&gt;&lt;div&gt;middle_name VARCHAR(50)&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="40" y="650" width="280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_trip_drivers" value="&lt;b&gt;Trips_Drivers&lt;/b&gt;&lt;hr&gt;trip_id INT NOT NULL (FK)&lt;br&gt;driver_id INT NOT NULL (FK)&lt;br&gt;PRIMARY KEY (trip_id, driver_id)" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="380" y="655" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_passengers" value="&lt;b&gt;Passengers&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;passenger_id SERIAL PRIMARY KEY&lt;/div&gt;&lt;div&gt;last_name VARCHAR(20) NOT NULL&lt;/div&gt;&lt;div&gt;first_name VARCHAR(20) NOT NULL&lt;/div&gt;&lt;div&gt;middle_name VARCHAR(20)&lt;/div&gt;&lt;div&gt;passport_number VARCHAR(15) NOT NULL UNIQUE&lt;/div&gt;&lt;div&gt;birth_year INT NOT NULL CHECK &amp;gt; 1900&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="757.5" y="610" width="360" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_tickets" value="&lt;b&gt;Tickets&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ticket_id SERIAL PRIMARY KEY&lt;/div&gt;&lt;div&gt;trip_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;passenger_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;destination_stop_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;sold_by_user_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;seat_number INT NOT NULL CHECK &amp;gt; 0&lt;/div&gt;&lt;div&gt;sale_date TIMESTAMPTZ NOT NULL DEFAULT NOW()&lt;/div&gt;&lt;div&gt;cost NUMERIC(10, 2) NOT NULL CHECK &amp;gt;= 0&lt;/div&gt;&lt;div&gt;UNIQUE (trip_id, seat_number)&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="755" y="340" width="365" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-routes-routestops" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;entryX=0.25;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" parent="1" source="tbl_routes" target="tbl_route_stops" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="320" y="115" as="sourcePoint" />
+            <mxPoint x="440" y="307" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="468" y="46" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-stops-routestops" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" parent="1" source="tbl_stops" target="tbl_route_stops" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="980" y="125" as="sourcePoint" />
+            <mxPoint x="740" y="307" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="643" y="62" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-routes-trips" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" parent="1" source="tbl_routes" target="tbl_trips" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="180" y="190" as="sourcePoint" />
+            <mxPoint x="390" y="518" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="200" y="190" />
+              <mxPoint x="340" y="190" />
+              <mxPoint x="340" y="430" />
+              <mxPoint x="258" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-buses-trips" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="tbl_buses" target="tbl_trips" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="180" y="400" as="sourcePoint" />
+            <mxPoint x="180" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-trips-tripdrivers" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" parent="1" source="tbl_trips" target="tbl_trip_drivers" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="180" y="595" as="sourcePoint" />
+            <mxPoint x="590" y="720" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="530" y="593" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-drivers-tripdrivers" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="tbl_drivers" target="tbl_trip_drivers" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="340" y="705" as="sourcePoint" />
+            <mxPoint x="360" y="705" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-trips-tickets" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="tbl_trips" target="tbl_tickets" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="320" y="537" as="sourcePoint" />
+            <mxPoint x="841" y="540" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="846" y="555" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-passengers-tickets" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="tbl_passengers" target="tbl_tickets" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="990" y="920" as="sourcePoint" />
+            <mxPoint x="928" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-stops-tickets" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="tbl_stops" target="tbl_tickets" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1100" y="270" as="sourcePoint" />
+            <mxPoint x="1030" y="340" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1100" y="84" />
+              <mxPoint x="1100" y="290" />
+              <mxPoint x="1029" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O1n1cHwkQQy5pXkkws2Y-1" value="&lt;b&gt;Roles&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;role_id SERIAL PRIMARY KEY&amp;nbsp;&lt;/div&gt;&lt;div&gt;role_name VARCHAR(50) NOT NULL UNIQUE&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="770" y="160" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="O1n1cHwkQQy5pXkkws2Y-2" value="&lt;b&gt;Users&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;user_id SERIAL PRIMARY KEY&lt;/div&gt;&lt;div&gt;role_id INT NOT NULL (FK)&lt;/div&gt;&lt;div&gt;last_name VARCHAR(50) NOT NULL&lt;/div&gt;&lt;div&gt;first_name VARCHAR(50) NOT NULL&lt;/div&gt;&lt;div&gt;middle_name VARCHAR(50)&lt;/div&gt;&lt;div&gt;login VARCHAR(50) NOT NULL UNIQUE (FK)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="390" y="280" width="300" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="O1n1cHwkQQy5pXkkws2Y-4" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="O1n1cHwkQQy5pXkkws2Y-1" target="O1n1cHwkQQy5pXkkws2Y-2" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="330" y="835" as="sourcePoint" />
+            <mxPoint x="430" y="820" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="848" y="260" />
+              <mxPoint x="540" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O1n1cHwkQQy5pXkkws2Y-5" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="O1n1cHwkQQy5pXkkws2Y-2" target="tbl_tickets" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="720" y="485" as="sourcePoint" />
+            <mxPoint x="740" y="490" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="730" y="393" />
+              <mxPoint x="730" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="O1n1cHwkQQy5pXkkws2Y-6" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;endFill=1;startFill=1;strokeWidth=2;verticalAlign=top;align=left;fontSize=14;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="O1n1cHwkQQy5pXkkws2Y-2" target="tbl_trips" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="360" y="520" as="sourcePoint" />
+            <mxPoint x="415" y="525" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="360" y="355" />
+              <mxPoint x="360" y="518" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="evWse15dYwe8fWn5sGJR-1" value="&lt;b&gt;Authorizations&lt;/b&gt;&lt;hr&gt;&lt;div&gt;login VARCHAR(50) PRIMARY KEY&lt;/div&gt;&lt;div&gt;password_hash VARCHAR(255) NOT NULL&lt;/div&gt;" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=left;resizeLast=1;strokeWidth=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="390" y="450" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="evWse15dYwe8fWn5sGJR-2" value="" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERone;startArrow=ERone;endFill=0;startFill=1;strokeWidth=2;snapToPoint=0;fixDash=0;metaEdit=0;backgroundOutline=0;movable=1;cloneable=1;deletable=1;enumerate=0;arcSize=15;verticalAlign=middle;spacing=2;fontSize=14;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="evWse15dYwe8fWn5sGJR-1" target="O1n1cHwkQQy5pXkkws2Y-2" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="350" y="520" as="sourcePoint" />
+            <mxPoint x="350" y="410" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="370" y="490" />
+              <mxPoint x="370" y="393" />
+              <mxPoint x="390" y="393" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
