@@ -2,30 +2,15 @@
 {
     partial class TicketSaleForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && (components != null)) components.Dispose();
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             this.groupBoxPass = new System.Windows.Forms.GroupBox();
@@ -43,7 +28,7 @@
             this.lblPrice = new System.Windows.Forms.Label();
             this.numPrice = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
-            this.numSeat = new System.Windows.Forms.NumericUpDown();
+            this.cmbSeat = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.cmbStops = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -52,7 +37,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numYear)).BeginInit();
             this.groupBoxTicket.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numPrice)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numSeat)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBoxPass
@@ -77,24 +61,12 @@
             // numYear
             // 
             this.numYear.Location = new System.Drawing.Point(119, 178);
-            this.numYear.Maximum = new decimal(new int[] {
-            2025,
-            0,
-            0,
-            0});
-            this.numYear.Minimum = new decimal(new int[] {
-            1900,
-            0,
-            0,
-            0});
+            this.numYear.Maximum = new decimal(new int[] { 2025, 0, 0, 0 });
+            this.numYear.Minimum = new decimal(new int[] { 1900, 0, 0, 0 });
             this.numYear.Name = "numYear";
             this.numYear.Size = new System.Drawing.Size(182, 20);
             this.numYear.TabIndex = 4;
-            this.numYear.Value = new decimal(new int[] {
-            1990,
-            0,
-            0,
-            0});
+            this.numYear.Value = new decimal(new int[] { 1990, 0, 0, 0 });
             // 
             // label5
             // 
@@ -107,10 +79,14 @@
             // 
             // txtPassport
             // 
+            this.txtPassport.ForeColor = System.Drawing.Color.Gray;
             this.txtPassport.Location = new System.Drawing.Point(119, 142);
             this.txtPassport.Name = "txtPassport";
             this.txtPassport.Size = new System.Drawing.Size(182, 20);
             this.txtPassport.TabIndex = 3;
+            this.txtPassport.Text = "Серия и номер";
+            this.txtPassport.Enter += new System.EventHandler(this.txtPassport_Enter);
+            this.txtPassport.Leave += new System.EventHandler(this.txtPassport_Leave);
             // 
             // label4
             // 
@@ -174,7 +150,7 @@
             this.groupBoxTicket.Controls.Add(this.lblPrice);
             this.groupBoxTicket.Controls.Add(this.numPrice);
             this.groupBoxTicket.Controls.Add(this.label8);
-            this.groupBoxTicket.Controls.Add(this.numSeat);
+            this.groupBoxTicket.Controls.Add(this.cmbSeat);
             this.groupBoxTicket.Controls.Add(this.label7);
             this.groupBoxTicket.Controls.Add(this.cmbStops);
             this.groupBoxTicket.Controls.Add(this.label6);
@@ -200,19 +176,11 @@
             // 
             this.numPrice.DecimalPlaces = 2;
             this.numPrice.Location = new System.Drawing.Point(94, 111);
-            this.numPrice.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
+            this.numPrice.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
             this.numPrice.Name = "numPrice";
             this.numPrice.Size = new System.Drawing.Size(120, 20);
             this.numPrice.TabIndex = 2;
-            this.numPrice.Value = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
+            this.numPrice.Value = new decimal(new int[] { 1000, 0, 0, 0 });
             // 
             // label8
             // 
@@ -223,22 +191,14 @@
             this.label8.TabIndex = 4;
             this.label8.Text = "Стоимость:";
             // 
-            // numSeat
+            // cmbSeat
             // 
-            this.numSeat.Location = new System.Drawing.Point(94, 73);
-            this.numSeat.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numSeat.Name = "numSeat";
-            this.numSeat.Size = new System.Drawing.Size(120, 20);
-            this.numSeat.TabIndex = 1;
-            this.numSeat.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.cmbSeat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSeat.FormattingEnabled = true;
+            this.cmbSeat.Location = new System.Drawing.Point(94, 72);
+            this.cmbSeat.Name = "cmbSeat";
+            this.cmbSeat.Size = new System.Drawing.Size(120, 21);
+            this.cmbSeat.TabIndex = 1;
             // 
             // label7
             // 
@@ -301,9 +261,7 @@
             this.groupBoxTicket.ResumeLayout(false);
             this.groupBoxTicket.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numPrice)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numSeat)).EndInit();
             this.ResumeLayout(false);
-
         }
 
         #endregion
@@ -322,7 +280,7 @@
         private System.Windows.Forms.GroupBox groupBoxTicket;
         private System.Windows.Forms.ComboBox cmbStops;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.NumericUpDown numSeat;
+        private System.Windows.Forms.ComboBox cmbSeat;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label lblPrice;
         private System.Windows.Forms.NumericUpDown numPrice;

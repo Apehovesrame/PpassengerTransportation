@@ -102,6 +102,12 @@
       <DependentUpon>BusManagerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Database.cs" />
+    <Compile Include="DriverManagerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverManagerForm.Designer.cs">
+      <DependentUpon>DriverManagerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +119,18 @@
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PassengerEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PassengerEditForm.Designer.cs">
+      <DependentUpon>PassengerEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PassengerListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PassengerListForm.Designer.cs">
+      <DependentUpon>PassengerListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -128,14 +146,26 @@
     <Compile Include="TicketSaleForm.Designer.cs">
       <DependentUpon>TicketSaleForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TripEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TripEditForm.Designer.cs">
+      <DependentUpon>TripEditForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="BusManagerForm.resx">
       <DependentUpon>BusManagerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverManagerForm.resx">
+      <DependentUpon>DriverManagerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PassengerListForm.resx">
+      <DependentUpon>PassengerListForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -151,6 +181,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TicketSaleForm.resx">
       <DependentUpon>TicketSaleForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TripEditForm.resx">
+      <DependentUpon>TripEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
