@@ -94,7 +94,31 @@ namespace PassengerTransportApp
         }
         private void txtName_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            TextBox txt = sender as TextBox;
+
+            // 1. Разрешаем Backspace
+            if (e.KeyChar == (char)Keys.Back) return;
+
+            // 2. Запрещаем пробел или дефис, если это ПЕРВЫЙ символ
+            if (txt.SelectionStart == 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            // 3. Запрещаем двойное тире (если предыдущий символ уже тире)
+            if (txt.SelectionStart > 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
+            {
+                char lastChar = txt.Text[txt.SelectionStart - 1];
+                if (lastChar == '-' || lastChar == ' ')
+                {
+                    e.Handled = true; // Блокируем повтор
+                    return;
+                }
+            }
+
+            // 4. Разрешаем только буквы, пробел и дефис
+            if (!char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
             {
                 e.Handled = true;
             }

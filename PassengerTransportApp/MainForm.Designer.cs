@@ -17,7 +17,7 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panelTop = new System.Windows.Forms.Panel();
             this.btnRouteManager = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
@@ -63,7 +63,7 @@
             this.panelTop.Controls.Add(this.btnClearArchive);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
-            this.panelTop.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.panelTop.Margin = new System.Windows.Forms.Padding(6);
             this.panelTop.Name = "panelTop";
             this.panelTop.Size = new System.Drawing.Size(2768, 246);
             this.panelTop.TabIndex = 0;
@@ -71,7 +71,7 @@
             // btnRouteManager
             // 
             this.btnRouteManager.Location = new System.Drawing.Point(1240, 23);
-            this.btnRouteManager.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnRouteManager.Margin = new System.Windows.Forms.Padding(6);
             this.btnRouteManager.Name = "btnRouteManager";
             this.btnRouteManager.Size = new System.Drawing.Size(180, 96);
             this.btnRouteManager.TabIndex = 12;
@@ -83,7 +83,7 @@
             // 
             this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRefresh.Location = new System.Drawing.Point(2544, 23);
-            this.btnRefresh.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnRefresh.Margin = new System.Windows.Forms.Padding(6);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(200, 96);
             this.btnRefresh.TabIndex = 1;
@@ -98,7 +98,7 @@
             this.btnSellTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSellTicket.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.btnSellTicket.Location = new System.Drawing.Point(2224, 23);
-            this.btnSellTicket.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnSellTicket.Margin = new System.Windows.Forms.Padding(6);
             this.btnSellTicket.Name = "btnSellTicket";
             this.btnSellTicket.Size = new System.Drawing.Size(308, 96);
             this.btnSellTicket.TabIndex = 0;
@@ -109,7 +109,7 @@
             // btnReports
             // 
             this.btnReports.Location = new System.Drawing.Point(800, 23);
-            this.btnReports.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnReports.Margin = new System.Windows.Forms.Padding(6);
             this.btnReports.Name = "btnReports";
             this.btnReports.Size = new System.Drawing.Size(180, 96);
             this.btnReports.TabIndex = 3;
@@ -120,7 +120,7 @@
             // btnBuses
             // 
             this.btnBuses.Location = new System.Drawing.Point(608, 23);
-            this.btnBuses.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnBuses.Margin = new System.Windows.Forms.Padding(6);
             this.btnBuses.Name = "btnBuses";
             this.btnBuses.Size = new System.Drawing.Size(180, 96);
             this.btnBuses.TabIndex = 4;
@@ -131,7 +131,7 @@
             // btnManageDrivers
             // 
             this.btnManageDrivers.Location = new System.Drawing.Point(416, 23);
-            this.btnManageDrivers.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnManageDrivers.Margin = new System.Windows.Forms.Padding(6);
             this.btnManageDrivers.Name = "btnManageDrivers";
             this.btnManageDrivers.Size = new System.Drawing.Size(180, 96);
             this.btnManageDrivers.TabIndex = 5;
@@ -145,7 +145,7 @@
             this.btnAddTrip.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddTrip.ForeColor = System.Drawing.Color.White;
             this.btnAddTrip.Location = new System.Drawing.Point(24, 23);
-            this.btnAddTrip.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnAddTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnAddTrip.Name = "btnAddTrip";
             this.btnAddTrip.Size = new System.Drawing.Size(380, 96);
             this.btnAddTrip.TabIndex = 6;
@@ -156,7 +156,7 @@
             // btnEditTrip
             // 
             this.btnEditTrip.Location = new System.Drawing.Point(24, 131);
-            this.btnEditTrip.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnEditTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnEditTrip.Name = "btnEditTrip";
             this.btnEditTrip.Size = new System.Drawing.Size(180, 58);
             this.btnEditTrip.TabIndex = 7;
@@ -167,7 +167,7 @@
             // btnDeleteTrip
             // 
             this.btnDeleteTrip.Location = new System.Drawing.Point(216, 131);
-            this.btnDeleteTrip.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnDeleteTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnDeleteTrip.Name = "btnDeleteTrip";
             this.btnDeleteTrip.Size = new System.Drawing.Size(188, 58);
             this.btnDeleteTrip.TabIndex = 8;
@@ -178,7 +178,7 @@
             // btnRestoreTrip
             // 
             this.btnRestoreTrip.Location = new System.Drawing.Point(416, 131);
-            this.btnRestoreTrip.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnRestoreTrip.Margin = new System.Windows.Forms.Padding(6);
             this.btnRestoreTrip.Name = "btnRestoreTrip";
             this.btnRestoreTrip.Size = new System.Drawing.Size(188, 58);
             this.btnRestoreTrip.TabIndex = 10;
@@ -189,7 +189,7 @@
             // btnShowPassengers
             // 
             this.btnShowPassengers.Location = new System.Drawing.Point(992, 23);
-            this.btnShowPassengers.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnShowPassengers.Margin = new System.Windows.Forms.Padding(6);
             this.btnShowPassengers.Name = "btnShowPassengers";
             this.btnShowPassengers.Size = new System.Drawing.Size(240, 96);
             this.btnShowPassengers.TabIndex = 11;
@@ -201,7 +201,7 @@
             // 
             this.chkShowDeleted.AutoSize = true;
             this.chkShowDeleted.Location = new System.Drawing.Point(24, 201);
-            this.chkShowDeleted.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.chkShowDeleted.Margin = new System.Windows.Forms.Padding(6);
             this.chkShowDeleted.Name = "chkShowDeleted";
             this.chkShowDeleted.Size = new System.Drawing.Size(254, 29);
             this.chkShowDeleted.TabIndex = 9;
@@ -212,7 +212,7 @@
             // btnAddUser
             // 
             this.btnAddUser.Location = new System.Drawing.Point(1432, 23);
-            this.btnAddUser.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnAddUser.Margin = new System.Windows.Forms.Padding(6);
             this.btnAddUser.Name = "btnAddUser";
             this.btnAddUser.Size = new System.Drawing.Size(180, 96);
             this.btnAddUser.TabIndex = 15;
@@ -224,7 +224,7 @@
             // 
             this.btnHardDelete.ForeColor = System.Drawing.Color.Red;
             this.btnHardDelete.Location = new System.Drawing.Point(616, 131);
-            this.btnHardDelete.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnHardDelete.Margin = new System.Windows.Forms.Padding(6);
             this.btnHardDelete.Name = "btnHardDelete";
             this.btnHardDelete.Size = new System.Drawing.Size(240, 58);
             this.btnHardDelete.TabIndex = 13;
@@ -236,7 +236,7 @@
             // 
             this.btnClearArchive.ForeColor = System.Drawing.Color.DarkRed;
             this.btnClearArchive.Location = new System.Drawing.Point(868, 131);
-            this.btnClearArchive.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnClearArchive.Margin = new System.Windows.Forms.Padding(6);
             this.btnClearArchive.Name = "btnClearArchive";
             this.btnClearArchive.Size = new System.Drawing.Size(240, 58);
             this.btnClearArchive.TabIndex = 14;
@@ -264,10 +264,13 @@
             // 
             // statusBtnLogout
             // 
+            this.statusBtnLogout.ActiveLinkColor = System.Drawing.Color.Blue;
             this.statusBtnLogout.IsLink = true;
+            this.statusBtnLogout.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.statusBtnLogout.LinkColor = System.Drawing.Color.Red;
             this.statusBtnLogout.Name = "statusBtnLogout";
-            this.statusBtnLogout.Size = new System.Drawing.Size(111, 32);
-            this.statusBtnLogout.Text = "[ Выход ]";
+            this.statusBtnLogout.Size = new System.Drawing.Size(90, 32);
+            this.statusBtnLogout.Text = " Выход";
             this.statusBtnLogout.Click += new System.EventHandler(this.btnLogout_Click);
             // 
             // dgvTrips
@@ -277,17 +280,17 @@
             this.dgvTrips.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvTrips.BackgroundColor = System.Drawing.Color.White;
             this.dgvTrips.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvTrips.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvTrips.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgvTrips.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvTrips.Location = new System.Drawing.Point(0, 246);
-            this.dgvTrips.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.dgvTrips.Margin = new System.Windows.Forms.Padding(6);
             this.dgvTrips.MultiSelect = false;
             this.dgvTrips.Name = "dgvTrips";
             this.dgvTrips.ReadOnly = true;
@@ -305,7 +308,7 @@
             this.Controls.Add(this.dgvTrips);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.panelTop);
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Система управления пассажироперевозками";

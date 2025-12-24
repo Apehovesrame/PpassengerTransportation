@@ -95,9 +95,33 @@ namespace PassengerTransportApp
         // Универсальный метод: разрешает только Буквы, Пробел, Дефис и Backspace
         private void txtName_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            TextBox txt = sender as TextBox;
+
+            // 1. Разрешаем Backspace
+            if (e.KeyChar == (char)Keys.Back) return;
+
+            // 2. Запрещаем пробел или дефис, если это ПЕРВЫЙ символ
+            if (txt.SelectionStart == 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
             {
-                e.Handled = true; // Блокируем ввод (цифры и символы не пройдут)
+                e.Handled = true;
+                return;
+            }
+
+            // 3. Запрещаем двойное тире (если предыдущий символ уже тире)
+            if (txt.SelectionStart > 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
+            {
+                char lastChar = txt.Text[txt.SelectionStart - 1];
+                if (lastChar == '-' || lastChar == ' ')
+                {
+                    e.Handled = true; // Блокируем повтор
+                    return;
+                }
+            }
+
+            // 4. Разрешаем только буквы, пробел и дефис
+            if (!char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            {
+                e.Handled = true;
             }
         }
 
@@ -160,6 +184,23 @@ namespace PassengerTransportApp
             txtMiddleName.BackColor = normalColor;
             txtPassport.BackColor = normalColor;
             cmbSeat.BackColor = normalColor;
+
+            string namePattern = @"^[а-яА-Яa-zA-Z]+(?:[- ][а-яА-Яa-zA-Z]+)*$";
+
+            // Проверка Фамилии
+            if (string.IsNullOrWhiteSpace(txtLastName.Text) || !Regex.IsMatch(txtLastName.Text, namePattern))
+            {
+                txtLastName.BackColor = errorColor;
+                MessageBox.Show("Некорректная Фамилия (проверьте тире и пробелы)", "Ошибка");
+                isValid = false;
+            }
+
+            // Проверка Имени
+            if (string.IsNullOrWhiteSpace(txtFirstName.Text) || !Regex.IsMatch(txtFirstName.Text, namePattern))
+            {
+                txtFirstName.BackColor = errorColor;
+                isValid = false;
+            }
 
             // 1. Проверка на пустоту
             if (string.IsNullOrWhiteSpace(txtLastName.Text))

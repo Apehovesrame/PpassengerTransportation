@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace PassengerTransportApp
 {
@@ -13,6 +14,10 @@ namespace PassengerTransportApp
         {
             InitializeComponent();
             _driverId = driverId;
+
+            txtLast.MaxLength = 50;
+            txtFirst.MaxLength = 50;
+            txtMiddle.MaxLength = 50;
 
             txtLast.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
             txtFirst.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
@@ -34,9 +39,21 @@ namespace PassengerTransportApp
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+            // Старая проверка на пустоту...
             if (string.IsNullOrWhiteSpace(txtLast.Text) || string.IsNullOrWhiteSpace(txtFirst.Text))
             {
                 MessageBox.Show("Фамилия и Имя обязательны!");
+                return;
+            }
+
+            // НОВАЯ ПРОВЕРКА
+            string pattern = @"^[а-яА-Яa-zA-Z]+(?:[- ][а-яА-Яa-zA-Z]+)*$";
+
+            if (!Regex.IsMatch(txtLast.Text, pattern) ||
+                !Regex.IsMatch(txtFirst.Text, pattern) ||
+                (!string.IsNullOrEmpty(txtMiddle.Text) && !Regex.IsMatch(txtMiddle.Text, pattern)))
+            {
+                MessageBox.Show("Некорректный формат имени!\nПроверьте, не ввели ли вы лишние тире или пробелы.", "Ошибка");
                 return;
             }
 
@@ -63,7 +80,31 @@ namespace PassengerTransportApp
         }
         private void txtName_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            TextBox txt = sender as TextBox;
+
+            // 1. Разрешаем Backspace
+            if (e.KeyChar == (char)Keys.Back) return;
+
+            // 2. Запрещаем пробел или дефис, если это ПЕРВЫЙ символ
+            if (txt.SelectionStart == 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            // 3. Запрещаем двойное тире (если предыдущий символ уже тире)
+            if (txt.SelectionStart > 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
+            {
+                char lastChar = txt.Text[txt.SelectionStart - 1];
+                if (lastChar == '-' || lastChar == ' ')
+                {
+                    e.Handled = true; // Блокируем повтор
+                    return;
+                }
+            }
+
+            // 4. Разрешаем только буквы, пробел и дефис
+            if (!char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
             {
                 e.Handled = true;
             }
