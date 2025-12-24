@@ -66,7 +66,59 @@ namespace PassengerTransportApp
             dgvStops.DataSource = dt;
             if (dgvStops.Columns["stop_id"] != null) dgvStops.Columns["stop_id"].Visible = false;
         }
+        // Метод пересчитывает Название и Длительность маршрута на основе его остановок
+        private void UpdateRouteHeader(int routeId)
+        {
+            try
+            {
+                // 1. Ищем название ПЕРВОЙ остановки (откуда)
+                string sqlStart = @"
+                    SELECT s.name 
+                    FROM Routes_Stops rs 
+                    JOIN Stops s ON rs.stop_id = s.stop_id 
+                    WHERE rs.route_id = @id 
+                    ORDER BY rs.stop_order ASC LIMIT 1";
 
+                object startObj = Database.ExecuteQuery(sqlStart, new NpgsqlParameter("@id", routeId)).Rows.Count > 0
+                                  ? Database.ExecuteQuery(sqlStart, new NpgsqlParameter("@id", routeId)).Rows[0][0]
+                                  : null;
+
+                // 2. Ищем название ПОСЛЕДНЕЙ остановки (куда) и её ВРЕМЯ
+                string sqlEnd = @"
+                    SELECT s.name, rs.arrival_time_from_start 
+                    FROM Routes_Stops rs 
+                    JOIN Stops s ON rs.stop_id = s.stop_id 
+                    WHERE rs.route_id = @id 
+                    ORDER BY rs.stop_order DESC LIMIT 1";
+
+                DataTable dtEnd = Database.ExecuteQuery(sqlEnd, new NpgsqlParameter("@id", routeId));
+
+                if (startObj != null && dtEnd.Rows.Count > 0)
+                {
+                    string startName = startObj.ToString();
+                    string endName = dtEnd.Rows[0]["name"].ToString();
+                    int maxTime = Convert.ToInt32(dtEnd.Rows[0]["arrival_time_from_start"]);
+
+                    // 3. Обновляем таблицу Routes
+                    string sqlUpdate = @"
+                        UPDATE Routes 
+                        SET departure_point = @dep, 
+                            destination_point = @dest,
+                            duration_minutes = @dur
+                        WHERE route_id = @id";
+
+                    Database.ExecuteNonQuery(sqlUpdate,
+                        new NpgsqlParameter("@dep", startName),
+                        new NpgsqlParameter("@dest", endName),
+                        new NpgsqlParameter("@dur", maxTime),
+                        new NpgsqlParameter("@id", routeId));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка обновления заголовка маршрута: " + ex.Message);
+            }
+        }
         private void btnAddStop_Click(object sender, EventArgs e)
         {
             if (dgvRoutes.SelectedRows.Count == 0) return;
@@ -75,7 +127,9 @@ namespace PassengerTransportApp
             RouteStopEditForm form = new RouteStopEditForm(routeId);
             if (form.ShowDialog() == DialogResult.OK)
             {
+                UpdateRouteHeader(routeId); 
                 LoadRouteStops(routeId);
+                LoadRoutes(); 
             }
         }
 
@@ -120,8 +174,9 @@ namespace PassengerTransportApp
                     string sql = "DELETE FROM Routes_Stops WHERE route_id = @rid AND stop_id = @sid";
                     Database.ExecuteNonQuery(sql, new NpgsqlParameter("@rid", routeId), new NpgsqlParameter("@sid", stopId));
 
-                    // Обновляем таблицу справа
+                    UpdateRouteHeader(routeId);
                     LoadRouteStops(routeId);
+                    LoadRoutes();
                 }
                 catch (Exception ex)
                 {
@@ -129,7 +184,25 @@ namespace PassengerTransportApp
                 }
             }
         }
+        private void btnEditRoute_Click(object sender, EventArgs e)
+        {
+            if (dgvRoutes.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите маршрут для редактирования.");
+                return;
+            }
 
+            int routeId = Convert.ToInt32(dgvRoutes.SelectedRows[0].Cells["route_id"].Value);
+
+            // Открываем форму в режиме редактирования (передаем ID)
+            RouteAddForm form = new RouteAddForm(routeId);
+
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                LoadRoutes(); // Обновляем список маршрутов
+                LoadRouteStops(routeId); // Обновляем список остановок (цена могла измениться)
+            }
+        }
         private void btnAddRoute_Click(object sender, EventArgs e)
         {
             RouteAddForm form = new RouteAddForm();

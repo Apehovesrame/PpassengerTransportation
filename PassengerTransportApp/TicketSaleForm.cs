@@ -257,15 +257,31 @@ namespace PassengerTransportApp
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+            string sqlDate = $"SELECT departure_datetime FROM Trips WHERE trip_id = {_tripId}";
+            DateTime departure = (DateTime)Database.ExecuteQuery(sqlDate).Rows[0][0];
+
+            if (departure < DateTime.Now)
+            {
+                MessageBox.Show("Нельзя продать билет на этот рейс, так как автобус уже уехал!", "Ошибка времени", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             if (!ValidateFields())
             {
-                MessageBox.Show("Пожалуйста, исправьте ошибки!", "Ошибка ввода");
+                //MessageBox.Show("Пожалуйста, исправьте ошибки!", "Ошибка ввода");
                 return;
             }
 
             try
             {
                 int passengerId = GetOrCreatePassenger();
+                string sqlCheckPass = $"SELECT COUNT(*) FROM Tickets WHERE trip_id = {_tripId} AND passenger_id = {passengerId}";
+                long count = (long)Database.ExecuteQuery(sqlCheckPass).Rows[0][0];
+
+                if (count > 0)
+                {
+                    MessageBox.Show("Этот пассажир уже имеет билет на данный рейс!", "Дубликат пассажира", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 if (passengerId == -1) return;
 
                 // Получаем ID остановки из выбранного объекта StopItem

@@ -27,7 +27,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.picBus = new System.Windows.Forms.PictureBox();
             this.btnUpload = new System.Windows.Forms.Button();
-            this.btnClearPhoto = new System.Windows.Forms.Button(); // Новая кнопка
+            this.btnClearPhoto = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuses)).BeginInit();
             this.grpBusInfo.SuspendLayout();
@@ -39,6 +39,8 @@
             // 
             this.dgvBuses.AllowUserToAddRows = false;
             this.dgvBuses.AllowUserToDeleteRows = false;
+            this.dgvBuses.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.dgvBuses.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvBuses.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvBuses.Location = new System.Drawing.Point(12, 12);
@@ -52,6 +54,7 @@
             // 
             // grpBusInfo
             // 
+            this.grpBusInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.grpBusInfo.Controls.Add(this.btnDelete);
             this.grpBusInfo.Controls.Add(this.btnEdit);
             this.grpBusInfo.Controls.Add(this.btnAdd);
@@ -155,19 +158,23 @@
             // 
             // picBus
             // 
+            this.picBus.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.picBus.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picBus.Location = new System.Drawing.Point(458, 241);
             this.picBus.Name = "picBus";
             this.picBus.Size = new System.Drawing.Size(314, 222);
-            this.picBus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picBus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom; // Режим Zoom, чтобы фото не искажалось
             this.picBus.TabIndex = 2;
             this.picBus.TabStop = false;
             // 
             // btnUpload
             // 
+            this.btnUpload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnUpload.Location = new System.Drawing.Point(458, 469);
             this.btnUpload.Name = "btnUpload";
-            this.btnUpload.Size = new System.Drawing.Size(150, 43); // Уменьшил ширину
+            this.btnUpload.Size = new System.Drawing.Size(150, 43);
             this.btnUpload.TabIndex = 3;
             this.btnUpload.Text = "Загрузить фото";
             this.btnUpload.UseVisualStyleBackColor = true;
@@ -175,6 +182,7 @@
             // 
             // btnClearPhoto
             // 
+            this.btnClearPhoto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClearPhoto.Location = new System.Drawing.Point(622, 469);
             this.btnClearPhoto.Name = "btnClearPhoto";
             this.btnClearPhoto.Size = new System.Drawing.Size(150, 43);
@@ -185,6 +193,7 @@
             // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(458, 222);
             this.label4.Name = "label4";
@@ -198,13 +207,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 524);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.btnClearPhoto); // Добавили на форму
+            this.Controls.Add(this.btnClearPhoto);
             this.Controls.Add(this.btnUpload);
             this.Controls.Add(this.picBus);
             this.Controls.Add(this.grpBusInfo);
             this.Controls.Add(this.dgvBuses);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
+
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            this.MaximizeBox = true; // Кнопка "Развернуть"
             this.Name = "BusManagerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Управление автопарком";
@@ -225,7 +235,6 @@
         private System.Windows.Forms.TextBox txtLicense;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnDelete;
-        private System.Windows.Forms.Button btnClearPhoto;
         private System.Windows.Forms.Button btnEdit;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.NumericUpDown numSeats;
@@ -234,6 +243,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox picBus;
         private System.Windows.Forms.Button btnUpload;
+        private System.Windows.Forms.Button btnClearPhoto;
         private System.Windows.Forms.Label label4;
     }
 }

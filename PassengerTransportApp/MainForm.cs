@@ -121,10 +121,17 @@ namespace PassengerTransportApp
                     t.trip_id,
                     r.route_number AS ""Номер маршрута"",
                     r.departure_point || ' - ' || r.destination_point AS ""Маршрут"",
+                    
+                    -- ОТПРАВЛЕНИЕ
                     TO_CHAR(t.departure_datetime, 'DD.MM.YYYY HH24:MI') AS ""Отправление"",
+                    
+                    -- ПРИБЫТИЕ (Добавлено)
+                    TO_CHAR(t.arrival_datetime, 'DD.MM.YYYY HH24:MI') AS ""Прибытие"",
+
                     b.model AS ""Автобус"",
                     b.license_plate AS ""Гос. номер"",
                     
+                    -- ВОДИТЕЛИ (С исправленными инициалами И.О.)
                     (
                         SELECT STRING_AGG(
                             d.last_name || ' ' || 
@@ -154,43 +161,32 @@ namespace PassengerTransportApp
             if (dgvTrips.Columns["trip_id"] != null)
                 dgvTrips.Columns["trip_id"].Visible = false;
 
-            // Определяем, есть ли права на удаление (Админ или Диспетчер)
-            bool canDelete = (_userRole == "Администратор" || _userRole == "Диспетчер");
-
             if (chkShowDeleted.Checked)
             {
-                // РЕЖИМ АРХИВА (Галочка стоит)
                 dgvTrips.BackgroundColor = Color.LightGray;
-
                 btnRestoreTrip.Visible = true;
 
-                // ВОТ ЗДЕСЬ ВКЛЮЧАЕМ КНОПКИ УДАЛЕНИЯ НАВСЕГДА
-                btnHardDelete.Visible = canDelete;
-                btnClearArchive.Visible = canDelete;
+                bool canManage = (_userRole == "Администратор" || _userRole == "Диспетчер");
+                btnHardDelete.Visible = canManage;
+                btnClearArchive.Visible = canManage;
 
-                // Скрываем обычные кнопки
                 btnDeleteTrip.Visible = false;
                 btnEditTrip.Visible = false;
                 btnSellTicket.Visible = false;
             }
             else
             {
-                // ОБЫЧНЫЙ РЕЖИМ
                 dgvTrips.BackgroundColor = Color.White;
-
                 btnRestoreTrip.Visible = false;
-
-                // Скрываем кнопки архива
                 btnHardDelete.Visible = false;
                 btnClearArchive.Visible = false;
 
-                // Показываем обычные кнопки
-                btnDeleteTrip.Visible = canDelete;
-                btnEditTrip.Visible = canDelete;
+                bool canManage = (_userRole == "Администратор" || _userRole == "Диспетчер");
+                btnDeleteTrip.Visible = canManage;
+                btnEditTrip.Visible = canManage;
                 btnSellTicket.Visible = true;
             }
         }
-
         private void btnDeleteTrip_Click(object sender, EventArgs e)
         {
             if (dgvTrips.SelectedRows.Count == 0)

@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using System;
 using System.Data;
+using System.Text.RegularExpressions; // <-- ВАЖНО: Добавлено для проверок
 using System.Windows.Forms;
 
 namespace PassengerTransportApp
@@ -18,12 +19,12 @@ namespace PassengerTransportApp
             txtFirst.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
             txtMiddle.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
 
+            txtPassport.MaxLength = 12; // 10 цифр + возможные пробелы
             txtPassport.KeyPress += new KeyPressEventHandler(txtPassport_KeyPress);
         }
 
         private void PassengerEditForm_Load(object sender, EventArgs e)
         {
-            // Загружаем текущие данные пассажира
             string sql = "SELECT last_name, first_name, middle_name, passport_number FROM Passengers WHERE passenger_id = @id";
             DataTable dt = Database.ExecuteQuery(sql, new NpgsqlParameter("@id", _passengerId));
 
@@ -40,7 +41,23 @@ namespace PassengerTransportApp
         {
             if (string.IsNullOrWhiteSpace(txtLast.Text) || string.IsNullOrWhiteSpace(txtPassport.Text))
             {
-                MessageBox.Show("Фамилия и Паспорт обязательны!");
+                MessageBox.Show("Фамилия и Паспорт обязательны!", "Внимание");
+                return;
+            }
+
+            string namePattern = @"^[а-яА-Яa-zA-Z]+(?:[- ][а-яА-Яa-zA-Z]+)*$";
+            if (!Regex.IsMatch(txtLast.Text, namePattern) ||
+                !Regex.IsMatch(txtFirst.Text, namePattern) ||
+                (!string.IsNullOrEmpty(txtMiddle.Text) && !Regex.IsMatch(txtMiddle.Text, namePattern)))
+            {
+                MessageBox.Show("Некорректный формат ФИО (проверьте лишние пробелы и тире).", "Ошибка формата");
+                return;
+            }
+
+            string cleanPassport = txtPassport.Text.Replace(" ", "").Trim();
+            if (!Regex.IsMatch(cleanPassport, @"^\d{10}$"))
+            {
+                MessageBox.Show($"Паспорт РФ должен содержать ровно 10 цифр.\nВы ввели: {cleanPassport.Length}", "Ошибка формата");
                 return;
             }
 
@@ -55,7 +72,7 @@ namespace PassengerTransportApp
                     new NpgsqlParameter("@ln", txtLast.Text.Trim()),
                     new NpgsqlParameter("@fn", txtFirst.Text.Trim()),
                     new NpgsqlParameter("@mn", txtMiddle.Text.Trim()),
-                    new NpgsqlParameter("@pass", txtPassport.Text.Trim()),
+                    new NpgsqlParameter("@pass", cleanPassport), 
                     new NpgsqlParameter("@id", _passengerId));
 
                 MessageBox.Show("Данные пассажира обновлены!");
@@ -71,35 +88,29 @@ namespace PassengerTransportApp
         {
             TextBox txt = sender as TextBox;
 
-            // 1. Разрешаем Backspace
             if (e.KeyChar == (char)Keys.Back) return;
 
-            // 2. Запрещаем пробел или дефис, если это ПЕРВЫЙ символ
             if (txt.SelectionStart == 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
             {
                 e.Handled = true;
                 return;
             }
 
-            // 3. Запрещаем двойное тире (если предыдущий символ уже тире)
             if (txt.SelectionStart > 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
             {
                 char lastChar = txt.Text[txt.SelectionStart - 1];
                 if (lastChar == '-' || lastChar == ' ')
                 {
-                    e.Handled = true; // Блокируем повтор
+                    e.Handled = true;
                     return;
                 }
             }
 
-            // 4. Разрешаем только буквы, пробел и дефис
             if (!char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
             {
                 e.Handled = true;
             }
         }
-
-
         private void txtPassport_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != ' ')

@@ -7,9 +7,43 @@ namespace PassengerTransportApp
 {
     public partial class RouteAddForm : Form
     {
-        public RouteAddForm()
+        private int? _routeId; // Если null - создание, если есть число - редактирование
+
+        public RouteAddForm(int? routeId = null)
         {
             InitializeComponent();
+            _routeId = routeId;
+
+            if (_routeId.HasValue)
+            {
+                this.Text = "Редактирование маршрута";
+                btnSave.Text = "Сохранить изменения";
+                LoadRouteData();
+            }
+        }
+
+        private void LoadRouteData()
+        {
+            // 1. Грузим данные из таблицы Routes
+            string sql = $"SELECT route_number, departure_point, destination_point, duration_minutes FROM Routes WHERE route_id = {_routeId}";
+            DataTable dt = Database.ExecuteQuery(sql);
+
+            if (dt.Rows.Count > 0)
+            {
+                txtNumber.Text = dt.Rows[0]["route_number"].ToString();
+                txtFrom.Text = dt.Rows[0]["departure_point"].ToString();
+                txtTo.Text = dt.Rows[0]["destination_point"].ToString();
+                numDuration.Value = Convert.ToDecimal(dt.Rows[0]["duration_minutes"]);
+            }
+
+            // 2. Узнаем текущую полную цену (цена последней остановки)
+            string sqlPrice = $"SELECT MAX(price_from_start) FROM Routes_Stops WHERE route_id = {_routeId}";
+            object priceObj = Database.ExecuteQuery(sqlPrice).Rows[0][0];
+
+            if (priceObj != DBNull.Value)
+            {
+                numPrice.Value = Convert.ToDecimal(priceObj);
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -24,35 +58,71 @@ namespace PassengerTransportApp
 
             try
             {
-                // 1. Создаем маршрут (Заголовок)
-                string sqlRoute = @"INSERT INTO Routes (route_number, departure_point, destination_point, duration_minutes)
-                                    VALUES (@num, @dep, @dest, @dur) RETURNING route_id";
+                if (_routeId.HasValue)
+                {
+                    // === РЕЖИМ РЕДАКТИРОВАНИЯ (UPDATE) ===
 
-                int newRouteId = (int)Database.ExecuteQuery(sqlRoute,
-                    new NpgsqlParameter("@num", txtNumber.Text.Trim()),
-                    new NpgsqlParameter("@dep", txtFrom.Text.Trim()),
-                    new NpgsqlParameter("@dest", txtTo.Text.Trim()),
-                    new NpgsqlParameter("@dur", (int)numDuration.Value)).Rows[0][0];
+                    // 1. Обновляем заголовок маршрута
+                    string sqlUpdate = @"
+                        UPDATE Routes 
+                        SET route_number = @num, departure_point = @dep, destination_point = @dest, duration_minutes = @dur
+                        WHERE route_id = @id";
 
-                // 2. Получаем (или создаем) ID для начальной и конечной остановки
-                int startStopId = GetOrCreateStop(txtFrom.Text.Trim());
-                int endStopId = GetOrCreateStop(txtTo.Text.Trim());
+                    Database.ExecuteNonQuery(sqlUpdate,
+                        new NpgsqlParameter("@num", txtNumber.Text.Trim()),
+                        new NpgsqlParameter("@dep", txtFrom.Text.Trim()),
+                        new NpgsqlParameter("@dest", txtTo.Text.Trim()),
+                        new NpgsqlParameter("@dur", (int)numDuration.Value),
+                        new NpgsqlParameter("@id", _routeId));
 
-                // 3. Добавляем НАЧАЛЬНУЮ остановку (Порядок 1, Цена 0, Время 0)
-                Database.ExecuteNonQuery(
-                    "INSERT INTO Routes_Stops (route_id, stop_id, stop_order, arrival_time_from_start, price_from_start) VALUES (@rid, @sid, 1, 0, 0)",
-                    new NpgsqlParameter("@rid", newRouteId),
-                    new NpgsqlParameter("@sid", startStopId));
+                    // 2. Обновляем Цену и Время у ПОСЛЕДНЕЙ остановки этого маршрута
+                    // (Ищем остановку с максимальным порядковым номером)
+                    string sqlUpdateLastStop = @"
+                        UPDATE Routes_Stops 
+                        SET price_from_start = @price, arrival_time_from_start = @time
+                        WHERE route_id = @id 
+                          AND stop_order = (SELECT MAX(stop_order) FROM Routes_Stops WHERE route_id = @id)";
 
-                // 4. Добавляем КОНЕЧНУЮ остановку (Порядок 2, Цена = полная, Время = полное)
-                Database.ExecuteNonQuery(
-                    "INSERT INTO Routes_Stops (route_id, stop_id, stop_order, arrival_time_from_start, price_from_start) VALUES (@rid, @sid, 2, @time, @price)",
-                    new NpgsqlParameter("@rid", newRouteId),
-                    new NpgsqlParameter("@sid", endStopId),
-                    new NpgsqlParameter("@time", (int)numDuration.Value),
-                    new NpgsqlParameter("@price", numPrice.Value));
+                    Database.ExecuteNonQuery(sqlUpdateLastStop,
+                        new NpgsqlParameter("@price", numPrice.Value),
+                        new NpgsqlParameter("@time", (int)numDuration.Value),
+                        new NpgsqlParameter("@id", _routeId));
 
-                MessageBox.Show("Маршрут успешно создан!\nАвтоматически добавлены начальная и конечная остановки.", "Успех");
+                    MessageBox.Show("Маршрут обновлен!");
+                }
+                else
+                {
+                    // === РЕЖИМ СОЗДАНИЯ (INSERT) — как и было ===
+
+                    string sqlRoute = @"INSERT INTO Routes (route_number, departure_point, destination_point, duration_minutes)
+                                        VALUES (@num, @dep, @dest, @dur) RETURNING route_id";
+
+                    int newRouteId = (int)Database.ExecuteQuery(sqlRoute,
+                        new NpgsqlParameter("@num", txtNumber.Text.Trim()),
+                        new NpgsqlParameter("@dep", txtFrom.Text.Trim()),
+                        new NpgsqlParameter("@dest", txtTo.Text.Trim()),
+                        new NpgsqlParameter("@dur", (int)numDuration.Value)).Rows[0][0];
+
+                    int startStopId = GetOrCreateStop(txtFrom.Text.Trim());
+                    int endStopId = GetOrCreateStop(txtTo.Text.Trim());
+
+                    // Начало
+                    Database.ExecuteNonQuery(
+                        "INSERT INTO Routes_Stops (route_id, stop_id, stop_order, arrival_time_from_start, price_from_start) VALUES (@rid, @sid, 1, 0, 0)",
+                        new NpgsqlParameter("@rid", newRouteId),
+                        new NpgsqlParameter("@sid", startStopId));
+
+                    // Конец
+                    Database.ExecuteNonQuery(
+                        "INSERT INTO Routes_Stops (route_id, stop_id, stop_order, arrival_time_from_start, price_from_start) VALUES (@rid, @sid, 2, @time, @price)",
+                        new NpgsqlParameter("@rid", newRouteId),
+                        new NpgsqlParameter("@sid", endStopId),
+                        new NpgsqlParameter("@time", (int)numDuration.Value),
+                        new NpgsqlParameter("@price", numPrice.Value));
+
+                    MessageBox.Show("Маршрут создан!", "Успех");
+                }
+
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
@@ -62,23 +132,15 @@ namespace PassengerTransportApp
             }
         }
 
-        // Вспомогательный метод: Найти ID остановки по имени, или создать новую
         private int GetOrCreateStop(string name)
         {
-            // 1. Ищем
             string sqlSearch = "SELECT stop_id FROM Stops WHERE name = @n";
             DataTable dt = Database.ExecuteQuery(sqlSearch, new NpgsqlParameter("@n", name));
 
-            if (dt.Rows.Count > 0)
-            {
-                return Convert.ToInt32(dt.Rows[0][0]);
-            }
-            else
-            {
-                // 2. Создаем
-                string sqlInsert = "INSERT INTO Stops (name) VALUES (@n) RETURNING stop_id";
-                return (int)Database.ExecuteQuery(sqlInsert, new NpgsqlParameter("@n", name)).Rows[0][0];
-            }
+            if (dt.Rows.Count > 0) return Convert.ToInt32(dt.Rows[0][0]);
+
+            string sqlInsert = "INSERT INTO Stops (name) VALUES (@n) RETURNING stop_id";
+            return (int)Database.ExecuteQuery(sqlInsert, new NpgsqlParameter("@n", name)).Rows[0][0];
         }
     }
 }

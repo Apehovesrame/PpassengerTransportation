@@ -15,6 +15,7 @@
             this.btnDelStop = new System.Windows.Forms.Button();
             this.btnDelRoute = new System.Windows.Forms.Button();
             this.btnAddRoute = new System.Windows.Forms.Button();
+            this.btnEditRoute = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRoutes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStops)).BeginInit();
             this.SuspendLayout();
@@ -26,7 +27,7 @@
             this.dgvRoutes.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvRoutes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvRoutes.Location = new System.Drawing.Point(24, 73);
-            this.dgvRoutes.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.dgvRoutes.Margin = new System.Windows.Forms.Padding(6);
             this.dgvRoutes.MultiSelect = false;
             this.dgvRoutes.Name = "dgvRoutes";
             this.dgvRoutes.ReadOnly = true;
@@ -43,7 +44,7 @@
             this.dgvStops.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvStops.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvStops.Location = new System.Drawing.Point(760, 73);
-            this.dgvStops.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.dgvStops.Margin = new System.Windows.Forms.Padding(6);
             this.dgvStops.MultiSelect = false;
             this.dgvStops.Name = "dgvStops";
             this.dgvStops.ReadOnly = true;
@@ -77,7 +78,7 @@
             // btnAddStop
             // 
             this.btnAddStop.Location = new System.Drawing.Point(760, 758);
-            this.btnAddStop.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnAddStop.Margin = new System.Windows.Forms.Padding(6);
             this.btnAddStop.Name = "btnAddStop";
             this.btnAddStop.Size = new System.Drawing.Size(300, 85);
             this.btnAddStop.TabIndex = 4;
@@ -88,7 +89,7 @@
             // btnDelStop
             // 
             this.btnDelStop.Location = new System.Drawing.Point(1072, 758);
-            this.btnDelStop.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnDelStop.Margin = new System.Windows.Forms.Padding(6);
             this.btnDelStop.Name = "btnDelStop";
             this.btnDelStop.Size = new System.Drawing.Size(300, 85);
             this.btnDelStop.TabIndex = 5;
@@ -100,7 +101,7 @@
             // 
             this.btnDelRoute.BackColor = System.Drawing.Color.MistyRose;
             this.btnDelRoute.Location = new System.Drawing.Point(524, 17);
-            this.btnDelRoute.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnDelRoute.Margin = new System.Windows.Forms.Padding(6);
             this.btnDelRoute.Name = "btnDelRoute";
             this.btnDelRoute.Size = new System.Drawing.Size(200, 48);
             this.btnDelRoute.TabIndex = 6;
@@ -114,7 +115,7 @@
             this.btnAddRoute.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddRoute.ForeColor = System.Drawing.Color.White;
             this.btnAddRoute.Location = new System.Drawing.Point(24, 854);
-            this.btnAddRoute.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnAddRoute.Margin = new System.Windows.Forms.Padding(6);
             this.btnAddRoute.Name = "btnAddRoute";
             this.btnAddRoute.Size = new System.Drawing.Size(700, 85);
             this.btnAddRoute.TabIndex = 7;
@@ -122,11 +123,22 @@
             this.btnAddRoute.UseVisualStyleBackColor = false;
             this.btnAddRoute.Click += new System.EventHandler(this.btnAddRoute_Click);
             // 
+            // btnEditRoute
+            // 
+            this.btnEditRoute.Location = new System.Drawing.Point(315, 17);
+            this.btnEditRoute.Name = "btnEditRoute";
+            this.btnEditRoute.Size = new System.Drawing.Size(200, 47);
+            this.btnEditRoute.TabIndex = 7;
+            this.btnEditRoute.Text = "Изменить";
+            this.btnEditRoute.UseVisualStyleBackColor = true;
+            this.btnEditRoute.Click += new System.EventHandler(this.btnEditRoute_Click);
+            // 
             // RouteManagerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1768, 951);
+            this.ClientSize = new System.Drawing.Size(1756, 951);
+            this.Controls.Add(this.btnEditRoute);
             this.Controls.Add(this.btnAddRoute);
             this.Controls.Add(this.btnDelRoute);
             this.Controls.Add(this.btnDelStop);
@@ -135,7 +147,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dgvStops);
             this.Controls.Add(this.dgvRoutes);
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "RouteManagerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Управление маршрутами и остановками";
@@ -151,6 +163,7 @@
         private System.Windows.Forms.DataGridView dgvStops;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btnEditRoute;
         private System.Windows.Forms.Button btnAddStop;
         private System.Windows.Forms.Button btnDelStop;
         private System.Windows.Forms.Button btnDelRoute;

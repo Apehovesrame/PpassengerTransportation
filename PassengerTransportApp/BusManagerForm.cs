@@ -81,12 +81,12 @@ namespace PassengerTransportApp
             }
         }
 
-        // ДОБАВИТЬ
+        // === ДОБАВИТЬ ===
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtLicense.Text) || string.IsNullOrWhiteSpace(txtModel.Text))
             {
-                MessageBox.Show("Заполните номер и модель!");
+                MessageBox.Show("Заполните номер и модель!", "Внимание");
                 return;
             }
 
@@ -98,16 +98,23 @@ namespace PassengerTransportApp
                     new NpgsqlParameter("@mod", txtModel.Text.Trim()),
                     new NpgsqlParameter("@seat", (int)numSeats.Value));
 
-                MessageBox.Show("Автобус добавлен!");
+                MessageBox.Show("Автобус успешно добавлен!", "Успех");
                 LoadBuses();
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505")
+            {
+                // Ловим ошибку уникальности (код 23505)
+                MessageBox.Show($"Автобус с гос. номером '{txtLicense.Text}' уже существует в базе данных!",
+                    "Ошибка: Дубликат номера", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка (возможно номер занят): " + ex.Message);
+                // Ловим все остальные ошибки
+                MessageBox.Show("Произошла ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // ИЗМЕНИТЬ
+        // === ИЗМЕНИТЬ ===
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (dgvBuses.SelectedRows.Count == 0) return;
@@ -122,12 +129,18 @@ namespace PassengerTransportApp
                     new NpgsqlParameter("@seat", (int)numSeats.Value),
                     new NpgsqlParameter("@id", busId));
 
-                MessageBox.Show("Данные обновлены!");
+                MessageBox.Show("Данные автобуса обновлены!", "Успех");
                 LoadBuses();
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505")
+            {
+                // Та же проверка при редактировании (вдруг мы меняем номер на уже занятый)
+                MessageBox.Show($"Автобус с гос. номером '{txtLicense.Text}' уже существует!",
+                    "Ошибка: Дубликат номера", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message);
+                MessageBox.Show("Произошла ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
