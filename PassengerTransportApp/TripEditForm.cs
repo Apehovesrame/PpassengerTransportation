@@ -8,16 +8,14 @@ namespace PassengerTransportApp
     public partial class TripEditForm : Form
     {
         private int _currentUserId;
-        private int? _tripId; // Если null - создание, если число - редактирование
+        private int? _tripId;
 
-        // Конструктор: параметр tripId опциональный (по умолчанию null)
         public TripEditForm(int userId, int? tripId = null)
         {
             InitializeComponent();
             _currentUserId = userId;
             _tripId = tripId;
 
-            // Меняем заголовок кнопки в зависимости от режима
             if (_tripId.HasValue)
             {
                 this.Text = "Редактирование рейса";
@@ -27,11 +25,11 @@ namespace PassengerTransportApp
 
         private void TripEditForm_Load(object sender, EventArgs e)
         {
-            LoadDirectories(); // Сначала грузим списки
+            LoadDirectories(); // Грузим списки
 
             if (_tripId.HasValue)
             {
-                LoadTripData(); // Если редактируем, заполняем поля
+                LoadTripData(); // Если редактируем - заполняем поля и ставим галочки
             }
         }
 
@@ -47,7 +45,7 @@ namespace PassengerTransportApp
             cmbBuses.DisplayMember = "name";
             cmbBuses.ValueMember = "bus_id";
 
-            // 3. Водители
+            // 3. Водители (заполняем CheckedListBox)
             DataTable dtDrivers = Database.ExecuteQuery("SELECT driver_id, last_name || ' ' || first_name as name FROM Drivers ORDER BY last_name");
             clbDrivers.Items.Clear();
             foreach (DataRow row in dtDrivers.Rows)
@@ -62,23 +60,21 @@ namespace PassengerTransportApp
 
         private void LoadTripData()
         {
-            // Получаем данные о самом рейсе
+            // 1. Загружаем основные данные рейса (Маршрут, Автобус, Время)
             string sqlTrip = $"SELECT route_id, bus_id, departure_datetime FROM Trips WHERE trip_id = {_tripId}";
             DataTable dt = Database.ExecuteQuery(sqlTrip);
 
             if (dt.Rows.Count > 0)
             {
-                // Устанавливаем значения в полях
                 cmbRoutes.SelectedValue = dt.Rows[0]["route_id"];
                 cmbBuses.SelectedValue = dt.Rows[0]["bus_id"];
                 dtpDeparture.Value = (DateTime)dt.Rows[0]["departure_datetime"];
             }
 
-            // Получаем назначенных водителей
+            // 2. Загружаем ВОДИТЕЛЕЙ и проставляем ГАЛОЧКИ
             string sqlDrivers = $"SELECT driver_id FROM Trips_Drivers WHERE trip_id = {_tripId}";
             DataTable dtAssigned = Database.ExecuteQuery(sqlDrivers);
 
-            // Проставляем галочки
             for (int i = 0; i < clbDrivers.Items.Count; i++)
             {
                 DriverItem item = (DriverItem)clbDrivers.Items[i];
@@ -86,7 +82,7 @@ namespace PassengerTransportApp
                 {
                     if (item.Id == (int)row["driver_id"])
                     {
-                        clbDrivers.SetItemChecked(i, true);
+                        clbDrivers.SetItemChecked(i, true); // <--- Вот здесь ставится галочка
                     }
                 }
             }
@@ -111,15 +107,15 @@ namespace PassengerTransportApp
                 DateTime newStart = dtpDeparture.Value;
                 DateTime newEnd = newStart.AddMinutes(duration);
 
-                // --- ПРОВЕРКА НА ЗАНЯТОСТЬ АВТОБУСА ---
-                // Важно: исключаем текущий рейс из проверки (trip_id != ...), 
-                // иначе он будет конфликтовать сам с собой при редактировании
-                string currentIdFilter = _tripId.HasValue ? $"AND trip_id != {_tripId}" : "";
+                // Фильтр для исключения текущего рейса при редактировании
+                string currentIdFilter = _tripId.HasValue ? $"AND t.trip_id != {_tripId}" : "";
 
+                // 1. ПРОВЕРКА АВТОБУСА (Игнорируем удаленные рейсы!)
                 string sqlCheckBus = $@"
-                    SELECT COUNT(*) FROM Trips 
-                    WHERE bus_id = @bid
-                      AND (departure_datetime < @newEnd AND arrival_datetime > @newStart)
+                    SELECT COUNT(*) FROM Trips t
+                    WHERE t.bus_id = @bid
+                      AND t.is_deleted = FALSE  -- <-- ВАЖНОЕ ИСПРАВЛЕНИЕ
+                      AND (t.departure_datetime < @newEnd AND t.arrival_datetime > @newStart)
                       {currentIdFilter}";
 
                 long busConflicts = (long)Database.ExecuteQuery(sqlCheckBus,
@@ -129,19 +125,20 @@ namespace PassengerTransportApp
 
                 if (busConflicts > 0)
                 {
-                    MessageBox.Show("Этот автобус занят в выбранное время!", "Конфликт");
+                    MessageBox.Show("Этот автобус занят в выбранное время (пересекается с другим активным рейсом)!", "Конфликт");
                     return;
                 }
 
-                // --- ПРОВЕРКА ВОДИТЕЛЕЙ ---
+                // 2. ПРОВЕРКА ВОДИТЕЛЕЙ (Игнорируем удаленные рейсы!)
                 foreach (DriverItem item in clbDrivers.CheckedItems)
                 {
                     string sqlCheckDriver = $@"
                         SELECT COUNT(*) FROM Trips t
                         JOIN Trips_Drivers td ON t.trip_id = td.trip_id
                         WHERE td.driver_id = @did
+                          AND t.is_deleted = FALSE  -- <-- ВАЖНОЕ ИСПРАВЛЕНИЕ
                           AND (t.departure_datetime < @newEnd AND t.arrival_datetime > @newStart)
-                          {currentIdFilter}"; // Та же фильтрация текущего рейса
+                          {currentIdFilter}";
 
                     long drvConflicts = (long)Database.ExecuteQuery(sqlCheckDriver,
                         new NpgsqlParameter("@did", item.Id),
@@ -150,16 +147,16 @@ namespace PassengerTransportApp
 
                     if (drvConflicts > 0)
                     {
-                        MessageBox.Show($"Водитель {item.Name} занят в это время!", "Конфликт");
+                        MessageBox.Show($"Водитель {item.Name} уже назначен на другой активный рейс в это время!", "Конфликт");
                         return;
                     }
                 }
 
-                // --- СОХРАНЕНИЕ ---
+                // СОХРАНЕНИЕ
 
                 if (_tripId.HasValue)
                 {
-                    // РЕЖИМ РЕДАКТИРОВАНИЯ (UPDATE)
+                    // РЕЖИМ РЕДАКТИРОВАНИЯ
                     string sqlUpdate = @"
                         UPDATE Trips 
                         SET route_id = @rid, bus_id = @bid, departure_datetime = @dep, arrival_datetime = @arr
@@ -172,7 +169,7 @@ namespace PassengerTransportApp
                         new NpgsqlParameter("@arr", newEnd),
                         new NpgsqlParameter("@tid", _tripId));
 
-                    // Обновляем водителей: удаляем старых, пишем новых
+                    // Обновляем водителей
                     Database.ExecuteNonQuery($"DELETE FROM Trips_Drivers WHERE trip_id = {_tripId}");
 
                     foreach (DriverItem item in clbDrivers.CheckedItems)
@@ -184,7 +181,7 @@ namespace PassengerTransportApp
                 }
                 else
                 {
-                    // РЕЖИМ СОЗДАНИЯ (INSERT) - как и было раньше
+                    // РЕЖИМ СОЗДАНИЯ
                     string sqlInsert = @"
                         INSERT INTO Trips (route_id, bus_id, created_by_user_id, departure_datetime, arrival_datetime) 
                         VALUES (@rid, @bid, @uid, @dep, @arr) RETURNING trip_id";

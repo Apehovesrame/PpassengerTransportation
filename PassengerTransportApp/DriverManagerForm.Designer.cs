@@ -2,30 +2,9 @@
 {
     partial class DriverManagerForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
+        protected override void Dispose(bool disposing) { if (disposing && (components != null)) components.Dispose(); base.Dispose(disposing); }
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             this.dgvDrivers = new System.Windows.Forms.DataGridView();
@@ -37,6 +16,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.txtLast = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnEdit = new System.Windows.Forms.Button(); // Новая
+            this.btnDelete = new System.Windows.Forms.Button(); // Новая
             ((System.ComponentModel.ISupportInitialize)(this.dgvDrivers)).BeginInit();
             this.grpAddDriver.SuspendLayout();
             this.SuspendLayout();
@@ -52,7 +33,7 @@
             this.dgvDrivers.Name = "dgvDrivers";
             this.dgvDrivers.ReadOnly = true;
             this.dgvDrivers.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDrivers.Size = new System.Drawing.Size(437, 426);
+            this.dgvDrivers.Size = new System.Drawing.Size(437, 380); // Чуть уменьшил высоту для кнопок
             this.dgvDrivers.TabIndex = 0;
             // 
             // grpAddDriver
@@ -75,7 +56,7 @@
             // 
             this.btnAdd.BackColor = System.Drawing.Color.LightSkyBlue;
             this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAdd.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnAdd.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
             this.btnAdd.Location = new System.Drawing.Point(19, 184);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(222, 36);
@@ -132,11 +113,35 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Фамилия:";
             // 
+            // btnEdit
+            // 
+            this.btnEdit.Location = new System.Drawing.Point(12, 403);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(120, 35);
+            this.btnEdit.TabIndex = 2;
+            this.btnEdit.Text = "Изменить";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.BackColor = System.Drawing.Color.MistyRose;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Location = new System.Drawing.Point(138, 403);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(120, 35);
+            this.btnDelete.TabIndex = 3;
+            this.btnDelete.Text = "Удалить";
+            this.btnDelete.UseVisualStyleBackColor = false;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            // 
             // DriverManagerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(746, 450);
+            this.Controls.Add(this.btnDelete);
+            this.Controls.Add(this.btnEdit);
             this.Controls.Add(this.grpAddDriver);
             this.Controls.Add(this.dgvDrivers);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -149,10 +154,7 @@
             this.grpAddDriver.ResumeLayout(false);
             this.grpAddDriver.PerformLayout();
             this.ResumeLayout(false);
-
         }
-
-        #endregion
 
         private System.Windows.Forms.DataGridView dgvDrivers;
         private System.Windows.Forms.GroupBox grpAddDriver;
@@ -163,5 +165,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtLast;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnEdit;
+        private System.Windows.Forms.Button btnDelete;
     }
 }

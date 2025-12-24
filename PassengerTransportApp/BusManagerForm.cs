@@ -1,5 +1,5 @@
 ﻿using Npgsql;
-using NpgsqlTypes; // Нужно для работы с Bytea
+using NpgsqlTypes;
 using System;
 using System.Data;
 using System.Drawing;
@@ -22,18 +22,32 @@ namespace PassengerTransportApp
 
         private void LoadBuses()
         {
-            // Загружаем список автобусов (без тяжелой картинки, чтобы не тормозило)
-            string sql = "SELECT bus_id, license_plate, model, seat_capacity FROM Buses ORDER BY bus_id";
+            // Загружаем список (вместимость переименована для красоты)
+            string sql = "SELECT bus_id, license_plate AS \"Гос. номер\", model AS \"Модель\", seat_capacity AS \"Мест\" FROM Buses ORDER BY bus_id";
             dgvBuses.DataSource = Database.ExecuteQuery(sql);
+            if (dgvBuses.Columns["bus_id"] != null) dgvBuses.Columns["bus_id"].Visible = false;
         }
 
         private void dgvBuses_SelectionChanged(object sender, EventArgs e)
         {
-            // Когда кликнули на строку - подгружаем картинку отдельно
             if (dgvBuses.SelectedRows.Count > 0)
             {
+                // 1. Заполняем поля ввода при клике
+                txtLicense.Text = dgvBuses.SelectedRows[0].Cells["Гос. номер"].Value.ToString();
+                txtModel.Text = dgvBuses.SelectedRows[0].Cells["Модель"].Value.ToString();
+                numSeats.Value = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["Мест"].Value);
+
+                // 2. Грузим фото
                 int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
                 LoadBusImage(busId);
+            }
+            else
+            {
+                // Очистка, если ничего не выбрано
+                txtLicense.Clear();
+                txtModel.Clear();
+                numSeats.Value = 20;
+                picBus.Image = null;
             }
         }
 
@@ -44,7 +58,6 @@ namespace PassengerTransportApp
 
             if (dt.Rows.Count > 0 && dt.Rows[0]["bus_image"] != DBNull.Value)
             {
-                // Конвертируем байты из БД обратно в картинку
                 byte[] imgData = (byte[])dt.Rows[0]["bus_image"];
                 using (MemoryStream ms = new MemoryStream(imgData))
                 {
@@ -53,10 +66,86 @@ namespace PassengerTransportApp
             }
             else
             {
-                picBus.Image = null; // Если картинки нет
+                picBus.Image = null;
             }
         }
-        
+
+        // ДОБАВИТЬ
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtLicense.Text) || string.IsNullOrWhiteSpace(txtModel.Text))
+            {
+                MessageBox.Show("Заполните номер и модель!");
+                return;
+            }
+
+            try
+            {
+                string sql = "INSERT INTO Buses (license_plate, model, seat_capacity) VALUES (@lic, @mod, @seat)";
+                Database.ExecuteNonQuery(sql,
+                    new NpgsqlParameter("@lic", txtLicense.Text.Trim()),
+                    new NpgsqlParameter("@mod", txtModel.Text.Trim()),
+                    new NpgsqlParameter("@seat", (int)numSeats.Value));
+
+                MessageBox.Show("Автобус добавлен!");
+                LoadBuses();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка (возможно номер занят): " + ex.Message);
+            }
+        }
+
+        // ИЗМЕНИТЬ
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (dgvBuses.SelectedRows.Count == 0) return;
+            int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
+
+            try
+            {
+                string sql = "UPDATE Buses SET license_plate = @lic, model = @mod, seat_capacity = @seat WHERE bus_id = @id";
+                Database.ExecuteNonQuery(sql,
+                    new NpgsqlParameter("@lic", txtLicense.Text.Trim()),
+                    new NpgsqlParameter("@mod", txtModel.Text.Trim()),
+                    new NpgsqlParameter("@seat", (int)numSeats.Value),
+                    new NpgsqlParameter("@id", busId));
+
+                MessageBox.Show("Данные обновлены!");
+                LoadBuses();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка: " + ex.Message);
+            }
+        }
+
+        // УДАЛИТЬ
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (dgvBuses.SelectedRows.Count == 0) return;
+            int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
+            string license = txtLicense.Text;
+
+            // Проверка: используется ли автобус в рейсах?
+            string sqlCheck = $"SELECT COUNT(*) FROM Trips WHERE bus_id = {busId}";
+            long count = (long)Database.ExecuteQuery(sqlCheck).Rows[0][0];
+
+            if (count > 0)
+            {
+                MessageBox.Show($"Нельзя удалить автобус {license}, так как он назначен на {count} рейсов (включая архивные).\nСначала удалите рейсы.", "Ошибка удаления", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show($"Удалить автобус {license}?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                Database.ExecuteNonQuery($"DELETE FROM Buses WHERE bus_id = {busId}");
+                LoadBuses();
+                picBus.Image = null;
+            }
+        }
+
+        // ФОТО (оставили как было)
         private void btnUpload_Click(object sender, EventArgs e)
         {
             if (dgvBuses.SelectedRows.Count == 0) return;
@@ -66,24 +155,50 @@ namespace PassengerTransportApp
                 ofd.Filter = "Изображения|*.jpg;*.jpeg;*.png;*.bmp";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    // 1. Читаем файл в массив байт
                     byte[] fileBytes = File.ReadAllBytes(ofd.FileName);
-
-                    // 2. Получаем ID автобуса
                     int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
 
-                    // 3. Сохраняем в БД
                     string sql = "UPDATE Buses SET bus_image = @img WHERE bus_id = @id";
-
-                    // Важно указать тип Bytea явно
                     NpgsqlParameter paramImg = new NpgsqlParameter("@img", NpgsqlDbType.Bytea);
                     paramImg.Value = fileBytes;
 
                     Database.ExecuteNonQuery(sql, paramImg, new NpgsqlParameter("@id", busId));
 
-                    // 4. Обновляем картинку на экране
                     picBus.Image = Image.FromFile(ofd.FileName);
                     MessageBox.Show("Фото успешно загружено!");
+                }
+            }
+        }
+        private void btnClearPhoto_Click(object sender, EventArgs e)
+        {
+            // Проверка, выбран ли автобус
+            if (dgvBuses.SelectedRows.Count == 0) return;
+
+            // Если картинки уже нет, ничего не делаем
+            if (picBus.Image == null)
+            {
+                MessageBox.Show("У этого автобуса и так нет фото.");
+                return;
+            }
+
+            if (MessageBox.Show("Вы уверены, что хотите удалить фотографию этого автобуса?", "Удаление фото", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
+                {
+                    int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
+
+                    // Устанавливаем NULL в поле bus_image
+                    string sql = "UPDATE Buses SET bus_image = NULL WHERE bus_id = @id";
+                    Database.ExecuteNonQuery(sql, new NpgsqlParameter("@id", busId));
+
+                    // Очищаем картинку в интерфейсе
+                    picBus.Image = null;
+
+                    MessageBox.Show("Фотография удалена.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка: " + ex.Message);
                 }
             }
         }

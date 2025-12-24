@@ -23,10 +23,6 @@ namespace PassengerTransportApp
                 return;
             }
 
-            // Запрос к БД.
-            // Мы соединяем таблицу Users, Roles и Authorizations, чтобы сразу узнать кто это.
-            // ВНИМАНИЕ: Сейчас мы сравниваем пароль как обычный текст (a.password_hash = @pass),
-            // так как в базу мы записали 'admin', '12345' и т.д. В реальном проекте тут нужно хеширование.
             string sql = @"
                 SELECT u.user_id, u.last_name, u.first_name, r.role_name
                 FROM Users u
@@ -42,7 +38,6 @@ namespace PassengerTransportApp
 
             if (dt != null && dt.Rows.Count > 0)
             {
-                // Данные найдены - вход успешен
                 DataRow row = dt.Rows[0];
                 int userId = Convert.ToInt32(row["user_id"]);
                 string role = row["role_name"].ToString();
@@ -51,19 +46,21 @@ namespace PassengerTransportApp
                 MessageBox.Show($"Добро пожаловать, {fio}!\nВаша роль: {role}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 MainForm mainForm = new MainForm(userId, role, fio);
-                // В следующем шаге мы научим MainForm принимать эти данные, пока просто открываем
                 mainForm.Show();
 
-                // Скрываем окно авторизации
+                // === ИЗМЕНЕНИЕ ===
+                // Добавляем обработчик: когда MainForm закроется, покажи снова эту форму (LoginForm)
+                mainForm.FormClosed += (s, args) => this.Show();
+
                 this.Hide();
+
+                // Очищаем поля пароля для безопасности
+                txtPassword.Clear();
             }
             else
             {
                 MessageBox.Show("Неверный логин или пароль", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
-        // Чтобы при закрытии главной формы закрывалось всё приложение:
-        // (этот код пока не нужен, добавим в Main позже)
     }
 }
