@@ -126,7 +126,15 @@ namespace PassengerTransportApp
                     b.license_plate AS ""Гос. номер"",
                     
                     (
-                        SELECT STRING_AGG(d.last_name || ' ' || SUBSTR(d.first_name, 1, 1) || '.', ', ')
+                        SELECT STRING_AGG(
+                            d.last_name || ' ' || 
+                            SUBSTR(d.first_name, 1, 1) || '.' || 
+                            CASE WHEN d.middle_name IS NOT NULL AND d.middle_name != '' 
+                                 THEN ' ' || SUBSTR(d.middle_name, 1, 1) || '.' 
+                                 ELSE '' 
+                            END, 
+                            ', '
+                        )
                         FROM Trips_Drivers td
                         JOIN Drivers d ON td.driver_id = d.driver_id
                         WHERE td.trip_id = t.trip_id

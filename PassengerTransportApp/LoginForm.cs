@@ -23,8 +23,9 @@ namespace PassengerTransportApp
                 return;
             }
 
+            // 1. Добавляем u.middle_name в запрос
             string sql = @"
-                SELECT u.user_id, u.last_name, u.first_name, r.role_name
+                SELECT u.user_id, u.last_name, u.first_name, u.middle_name, r.role_name
                 FROM Users u
                 JOIN Roles r ON u.role_id = r.role_id
                 JOIN Authorizations a ON u.login = a.login
@@ -41,20 +42,28 @@ namespace PassengerTransportApp
                 DataRow row = dt.Rows[0];
                 int userId = Convert.ToInt32(row["user_id"]);
                 string role = row["role_name"].ToString();
-                string fio = $"{row["last_name"]} {row["first_name"]}";
 
-                MessageBox.Show($"Добро пожаловать, {fio}!\nВаша роль: {role}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // 2. Формируем красивые инициалы (Фамилия И.О.)
+                string lastName = row["last_name"].ToString();
+                string firstName = row["first_name"].ToString();
+                string middleName = row["middle_name"].ToString();
 
-                MainForm mainForm = new MainForm(userId, role, fio);
+                string shortFio = lastName + " " + firstName.Substring(0, 1) + ".";
+
+                if (!string.IsNullOrEmpty(middleName))
+                {
+                    shortFio += middleName.Substring(0, 1) + ".";
+                }
+
+                MessageBox.Show($"Добро пожаловать, {shortFio}!\nВаша роль: {role}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                MainForm mainForm = new MainForm(userId, role, shortFio);
                 mainForm.Show();
 
-                // === ИЗМЕНЕНИЕ ===
-                // Добавляем обработчик: когда MainForm закроется, покажи снова эту форму (LoginForm)
                 mainForm.FormClosed += (s, args) => this.Show();
 
                 this.Hide();
 
-                // Очищаем поля пароля для безопасности
                 txtPassword.Clear();
             }
             else
