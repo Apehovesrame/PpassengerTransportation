@@ -169,36 +169,29 @@ namespace PassengerTransportApp
                 {
                     try
                     {
-                        // 1. Сначала ПРОВЕРЯЕМ, картинка ли это вообще
-                        // Если это текстовый файл, Image.FromFile выбросит ошибку OutOfMemoryException
                         using (Image testImg = Image.FromFile(ofd.FileName))
                         {
-                            // Если открылось без ошибки - значит это реальная картинка, идем дальше
+
                         }
 
-                        // 2. Читаем файл в массив байт
                         byte[] fileBytes = File.ReadAllBytes(ofd.FileName);
                         int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
 
-                        // 3. Сохраняем в БД
                         string sql = "UPDATE Buses SET bus_image = @img WHERE bus_id = @id";
                         NpgsqlParameter paramImg = new NpgsqlParameter("@img", NpgsqlDbType.Bytea);
                         paramImg.Value = fileBytes;
 
                         Database.ExecuteNonQuery(sql, paramImg, new NpgsqlParameter("@id", busId));
 
-                        // 4. Показываем на экране
                         picBus.Image = Image.FromFile(ofd.FileName);
                         MessageBox.Show("Фото успешно загружено!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (OutOfMemoryException)
                     {
-                        // Ловим ошибку "Это не картинка"
                         MessageBox.Show("Выбранный файл поврежден или не является изображением!", "Ошибка формата", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
-                        // Ловим любые другие ошибки (нет доступа к файлу, сбой сети и т.д.)
                         MessageBox.Show("Ошибка при загрузке: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -206,10 +199,8 @@ namespace PassengerTransportApp
         }
         private void btnClearPhoto_Click(object sender, EventArgs e)
         {
-            // Проверка, выбран ли автобус
             if (dgvBuses.SelectedRows.Count == 0) return;
 
-            // Если картинки уже нет, ничего не делаем
             if (picBus.Image == null)
             {
                 MessageBox.Show("У этого автобуса и так нет фото.");
@@ -222,11 +213,9 @@ namespace PassengerTransportApp
                 {
                     int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
 
-                    // Устанавливаем NULL в поле bus_image
                     string sql = "UPDATE Buses SET bus_image = NULL WHERE bus_id = @id";
                     Database.ExecuteNonQuery(sql, new NpgsqlParameter("@id", busId));
 
-                    // Очищаем картинку в интерфейсе
                     picBus.Image = null;
 
                     MessageBox.Show("Фотография удалена.");
