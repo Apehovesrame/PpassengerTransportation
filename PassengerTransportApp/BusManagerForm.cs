@@ -58,10 +58,21 @@ namespace PassengerTransportApp
 
             if (dt.Rows.Count > 0 && dt.Rows[0]["bus_image"] != DBNull.Value)
             {
-                byte[] imgData = (byte[])dt.Rows[0]["bus_image"];
-                using (MemoryStream ms = new MemoryStream(imgData))
+                try
                 {
-                    picBus.Image = Image.FromStream(ms);
+                    // Пытаемся превратить байты в картинку
+                    byte[] imgData = (byte[])dt.Rows[0]["bus_image"];
+                    using (MemoryStream ms = new MemoryStream(imgData))
+                    {
+                        picBus.Image = Image.FromStream(ms);
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Если файл оказался "битым" или это переименованный текстовый файл
+                    picBus.Image = null; // Просто не показываем картинку
+                    // Можно вывести сообщение, но лучше просто не ломать программу
+                    // MessageBox.Show("Файл изображения поврежден."); 
                 }
             }
             else
@@ -153,19 +164,43 @@ namespace PassengerTransportApp
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Изображения|*.jpg;*.jpeg;*.png;*.bmp";
+
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    byte[] fileBytes = File.ReadAllBytes(ofd.FileName);
-                    int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
+                    try
+                    {
+                        // 1. Сначала ПРОВЕРЯЕМ, картинка ли это вообще
+                        // Если это текстовый файл, Image.FromFile выбросит ошибку OutOfMemoryException
+                        using (Image testImg = Image.FromFile(ofd.FileName))
+                        {
+                            // Если открылось без ошибки - значит это реальная картинка, идем дальше
+                        }
 
-                    string sql = "UPDATE Buses SET bus_image = @img WHERE bus_id = @id";
-                    NpgsqlParameter paramImg = new NpgsqlParameter("@img", NpgsqlDbType.Bytea);
-                    paramImg.Value = fileBytes;
+                        // 2. Читаем файл в массив байт
+                        byte[] fileBytes = File.ReadAllBytes(ofd.FileName);
+                        int busId = Convert.ToInt32(dgvBuses.SelectedRows[0].Cells["bus_id"].Value);
 
-                    Database.ExecuteNonQuery(sql, paramImg, new NpgsqlParameter("@id", busId));
+                        // 3. Сохраняем в БД
+                        string sql = "UPDATE Buses SET bus_image = @img WHERE bus_id = @id";
+                        NpgsqlParameter paramImg = new NpgsqlParameter("@img", NpgsqlDbType.Bytea);
+                        paramImg.Value = fileBytes;
 
-                    picBus.Image = Image.FromFile(ofd.FileName);
-                    MessageBox.Show("Фото успешно загружено!");
+                        Database.ExecuteNonQuery(sql, paramImg, new NpgsqlParameter("@id", busId));
+
+                        // 4. Показываем на экране
+                        picBus.Image = Image.FromFile(ofd.FileName);
+                        MessageBox.Show("Фото успешно загружено!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (OutOfMemoryException)
+                    {
+                        // Ловим ошибку "Это не картинка"
+                        MessageBox.Show("Выбранный файл поврежден или не является изображением!", "Ошибка формата", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Ловим любые другие ошибки (нет доступа к файлу, сбой сети и т.д.)
+                        MessageBox.Show("Ошибка при загрузке: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
