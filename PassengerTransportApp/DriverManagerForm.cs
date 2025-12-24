@@ -10,6 +10,10 @@ namespace PassengerTransportApp
         public DriverManagerForm()
         {
             InitializeComponent();
+
+            txtLast.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtFirst.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtMiddle.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
         }
 
         private void DriverManagerForm_Load(object sender, EventArgs e)
@@ -86,6 +90,13 @@ namespace PassengerTransportApp
             {
                 Database.ExecuteNonQuery($"DELETE FROM Drivers WHERE driver_id = {id}");
                 LoadDrivers();
+            }
+        }
+        private void txtName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            {
+                e.Handled = true;
             }
         }
     }

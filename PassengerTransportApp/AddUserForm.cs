@@ -11,6 +11,8 @@ namespace PassengerTransportApp
         {
             InitializeComponent();
             LoadRoles();
+
+            txtFIO.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
         }
 
         private void LoadRoles()
@@ -63,6 +65,13 @@ namespace PassengerTransportApp
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка (возможно логин занят): " + ex.Message);
+            }
+        }
+        private void txtName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            {
+                e.Handled = true;
             }
         }
     }

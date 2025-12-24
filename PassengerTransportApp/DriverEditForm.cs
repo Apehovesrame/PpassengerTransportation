@@ -13,6 +13,10 @@ namespace PassengerTransportApp
         {
             InitializeComponent();
             _driverId = driverId;
+
+            txtLast.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtFirst.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtMiddle.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
         }
 
         private void DriverEditForm_Load(object sender, EventArgs e)
@@ -55,6 +59,13 @@ namespace PassengerTransportApp
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка: " + ex.Message);
+            }
+        }
+        private void txtName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            {
+                e.Handled = true;
             }
         }
     }

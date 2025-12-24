@@ -20,13 +20,20 @@ namespace PassengerTransportApp
             _tripId = tripId;
             _cashierId = cashierId;
 
-            // Настройки паспорта
-            txtPassport.MaxLength = 12;
+            txtLastName.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtFirstName.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtMiddleName.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+
+            txtLastName.MaxLength = 20;
+            txtFirstName.MaxLength = 20;
+            txtMiddleName.MaxLength = 20;
+
+            txtPassport.MaxLength = 11;
+
             txtPassport.Text = PASSPORT_PLACEHOLDER;
             txtPassport.ForeColor = Color.Gray;
-            txtPassport.KeyPress += new KeyPressEventHandler(txtPassport_KeyPress);
 
-            // Подписка на смену остановки для пересчета цены
+            txtPassport.KeyPress += new KeyPressEventHandler(txtPassport_KeyPress);
             cmbStops.SelectedIndexChanged += CmbStops_SelectedIndexChanged;
 
             LoadStops();
@@ -85,6 +92,14 @@ namespace PassengerTransportApp
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != ' '))
                 e.Handled = true;
         }
+        // Универсальный метод: разрешает только Буквы, Пробел, Дефис и Backspace
+        private void txtName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            {
+                e.Handled = true; // Блокируем ввод (цифры и символы не пройдут)
+            }
+        }
 
         private void LoadFreeSeats()
         {
@@ -139,11 +154,14 @@ namespace PassengerTransportApp
             Color errorColor = Color.MistyRose;
             Color normalColor = SystemColors.Window;
 
+            // Сброс цветов
             txtLastName.BackColor = normalColor;
             txtFirstName.BackColor = normalColor;
+            txtMiddleName.BackColor = normalColor;
             txtPassport.BackColor = normalColor;
             cmbSeat.BackColor = normalColor;
 
+            // 1. Проверка на пустоту
             if (string.IsNullOrWhiteSpace(txtLastName.Text))
             {
                 txtLastName.BackColor = errorColor;
@@ -160,6 +178,26 @@ namespace PassengerTransportApp
                 isValid = false;
             }
 
+            // 2. НОВАЯ ПРОВЕРКА: Длина текста
+            if (txtLastName.Text.Length > 20)
+            {
+                MessageBox.Show("Фамилия слишком длинная! Максимум 20 букв.", "Ошибка формата");
+                txtLastName.BackColor = errorColor;
+                return false;
+            }
+            if (txtFirstName.Text.Length > 20)
+            {
+                MessageBox.Show("Имя слишком длинное! Максимум 20 букв.", "Ошибка формата");
+                txtFirstName.BackColor = errorColor;
+                return false;
+            }
+            if (txtMiddleName.Text.Length > 20)
+            {
+                MessageBox.Show("Отчество слишком длинное! Максимум 20 букв.", "Ошибка формата");
+                txtMiddleName.BackColor = errorColor;
+                return false;
+            }
+
             string cleanPassport = txtPassport.Text.Replace(" ", "").Trim();
             if (txtPassport.Text == PASSPORT_PLACEHOLDER ||
                 string.IsNullOrWhiteSpace(cleanPassport) ||
@@ -172,6 +210,7 @@ namespace PassengerTransportApp
                 }
                 isValid = false;
             }
+
             return isValid;
         }
 

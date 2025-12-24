@@ -13,6 +13,12 @@ namespace PassengerTransportApp
         {
             InitializeComponent();
             _passengerId = passengerId;
+
+            txtLast.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtFirst.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+            txtMiddle.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
+
+            txtPassport.KeyPress += new KeyPressEventHandler(txtPassport_KeyPress);
         }
 
         private void PassengerEditForm_Load(object sender, EventArgs e)
@@ -59,6 +65,22 @@ namespace PassengerTransportApp
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка: " + ex.Message);
+            }
+        }
+        private void txtName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
+            {
+                e.Handled = true;
+            }
+        }
+
+
+        private void txtPassport_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != ' ')
+            {
+                e.Handled = true;
             }
         }
     }
