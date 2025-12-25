@@ -19,7 +19,6 @@ namespace PassengerTransportApp
 
         private void LoadUsers()
         {
-            // Показываем Логин, ФИО и Роль
             string sql = @"
                 SELECT 
                     u.user_id, 
@@ -34,22 +33,18 @@ namespace PassengerTransportApp
             if (dgvUsers.Columns["user_id"] != null) dgvUsers.Columns["user_id"].Visible = false;
         }
 
-        // === ДОБАВИТЬ ===
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            // Открываем ту форму, что у тебя уже была
             AddUserForm form = new AddUserForm();
-            if (form.ShowDialog() == DialogResult.OK) // Надо доработать AddUserForm, чтобы возвращала OK (см. ниже)
+            if (form.ShowDialog() == DialogResult.OK) 
             {
                 LoadUsers();
             }
             else
             {
-                LoadUsers(); // На всякий случай обновляем
+                LoadUsers(); 
             }
         }
-
-        // === ИЗМЕНИТЬ ===
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (dgvUsers.SelectedRows.Count == 0) return;
@@ -61,8 +56,6 @@ namespace PassengerTransportApp
                 LoadUsers();
             }
         }
-
-        // === УДАЛИТЬ ===
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (dgvUsers.SelectedRows.Count == 0) return;
@@ -74,14 +67,8 @@ namespace PassengerTransportApp
             {
                 try
                 {
-                    // Сначала удаляем из таблицы Users, потом из Authorizations (т.к. связь по логину)
-                    // Но логин связан внешним ключом.
-                    // Схема такая: Users -> Authorizations(login).
-
-                    // 1. Удаляем запись пользователя (FK на логин удалится)
                     Database.ExecuteNonQuery($"DELETE FROM Users WHERE user_id = {userId}");
 
-                    // 2. Удаляем запись авторизации
                     Database.ExecuteNonQuery("DELETE FROM Authorizations WHERE login = @log", new NpgsqlParameter("@log", login));
 
                     MessageBox.Show("Сотрудник удален.");
@@ -89,7 +76,6 @@ namespace PassengerTransportApp
                 }
                 catch (Exception ex)
                 {
-                    // Если сотрудник уже напродавал билетов или создал рейсы, база не даст его удалить
                     MessageBox.Show("Нельзя удалить сотрудника, так как у него есть связанные данные (проданные билеты или созданные рейсы).\n\nОшибка: " + ex.Message);
                 }
             }

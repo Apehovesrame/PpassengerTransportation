@@ -35,7 +35,7 @@
             // 
             this.txtLogin.Location = new System.Drawing.Point(15, 31);
             this.txtLogin.Name = "txtLogin";
-            this.txtLogin.ReadOnly = true; // Логин менять нельзя
+            this.txtLogin.ReadOnly = true; 
             this.txtLogin.Size = new System.Drawing.Size(200, 20);
             this.txtLogin.TabIndex = 1;
             // 
