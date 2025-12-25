@@ -17,7 +17,8 @@ namespace PassengerTransportApp
             LoadRoutes();
         }
 
-        private void LoadRoutes()
+        // Добавили параметр idToSelect (по умолчанию null)
+        private void LoadRoutes(int? idToSelect = null)
         {
             string sql = @"
                 SELECT 
@@ -29,9 +30,23 @@ namespace PassengerTransportApp
 
             dgvRoutes.DataSource = Database.ExecuteQuery(sql);
 
-            // Скрываем ID
             if (dgvRoutes.Columns["route_id"] != null)
                 dgvRoutes.Columns["route_id"].Visible = false;
+
+            if (idToSelect.HasValue && dgvRoutes.Rows.Count > 0)
+            {
+                dgvRoutes.ClearSelection(); 
+
+                foreach (DataGridViewRow row in dgvRoutes.Rows)
+                {
+                    if (Convert.ToInt32(row.Cells["route_id"].Value) == idToSelect.Value)
+                    {
+                        row.Selected = true; 
+                        dgvRoutes.CurrentCell = row.Cells[1]; 
+                        return; 
+                    }
+                }
+            }
         }
 
         private void dgvRoutes_SelectionChanged(object sender, EventArgs e)
@@ -49,7 +64,6 @@ namespace PassengerTransportApp
 
         private void LoadRouteStops(int routeId)
         {
-            // Показываем: Порядок, Название, Время, Цену
             string sql = @"
                 SELECT 
                     rs.stop_id, -- скрыто
@@ -66,12 +80,10 @@ namespace PassengerTransportApp
             dgvStops.DataSource = dt;
             if (dgvStops.Columns["stop_id"] != null) dgvStops.Columns["stop_id"].Visible = false;
         }
-        // Метод пересчитывает Название и Длительность маршрута на основе его остановок
         private void UpdateRouteHeader(int routeId)
         {
             try
             {
-                // 1. Ищем название ПЕРВОЙ остановки (откуда)
                 string sqlStart = @"
                     SELECT s.name 
                     FROM Routes_Stops rs 
@@ -83,7 +95,6 @@ namespace PassengerTransportApp
                                   ? Database.ExecuteQuery(sqlStart, new NpgsqlParameter("@id", routeId)).Rows[0][0]
                                   : null;
 
-                // 2. Ищем название ПОСЛЕДНЕЙ остановки (куда) и её ВРЕМЯ
                 string sqlEnd = @"
                     SELECT s.name, rs.arrival_time_from_start 
                     FROM Routes_Stops rs 
@@ -99,7 +110,6 @@ namespace PassengerTransportApp
                     string endName = dtEnd.Rows[0]["name"].ToString();
                     int maxTime = Convert.ToInt32(dtEnd.Rows[0]["arrival_time_from_start"]);
 
-                    // 3. Обновляем таблицу Routes
                     string sqlUpdate = @"
                         UPDATE Routes 
                         SET departure_point = @dep, 
@@ -129,27 +139,24 @@ namespace PassengerTransportApp
             {
                 UpdateRouteHeader(routeId); 
                 LoadRouteStops(routeId);
-                LoadRoutes(); 
+                LoadRoutes(routeId); 
             }
         }
 
         private void btnDelStop_Click(object sender, EventArgs e)
         {
-            // 1. Проверяем, выбраны ли строки в обеих таблицах
             if (dgvRoutes.SelectedRows.Count == 0 || dgvStops.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Выберите маршрут и остановку, которую хотите удалить.");
+                MessageBox.Show("Выберите маршрут и остановку для удаления.");
                 return;
             }
 
-            // Получаем ID
             int routeId = Convert.ToInt32(dgvRoutes.SelectedRows[0].Cells["route_id"].Value);
             int stopId = Convert.ToInt32(dgvStops.SelectedRows[0].Cells["stop_id"].Value);
             string stopName = dgvStops.SelectedRows[0].Cells["Остановка"].Value.ToString();
 
-            // 2. ВАЖНАЯ ПРОВЕРКА: Есть ли проданные билеты до этой остановки?
-            // Мы ищем билеты (Tickets), которые куплены на рейсы (Trips) этого маршрута (@rid)
-            // и у которых пункт назначения (@sid) — это удаляемая остановка.
+            int deletedOrder = Convert.ToInt32(dgvStops.SelectedRows[0].Cells["№"].Value);
+
             string sqlCheck = @"
                 SELECT COUNT(*) 
                 FROM Tickets t
@@ -162,21 +169,26 @@ namespace PassengerTransportApp
 
             if (ticketsCount > 0)
             {
-                MessageBox.Show($"Нельзя удалить остановку \"{stopName}\", так как до неё уже продано {ticketsCount} билетов!\n\nСначала нужно отменить соответствующие рейсы или вернуть билеты.", "Ошибка удаления", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Нельзя удалить остановку \"{stopName}\", так как до неё уже продано {ticketsCount} билетов!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            // 3. Если билетов нет — удаляем
-            if (MessageBox.Show($"Удалить остановку \"{stopName}\" из маршрута?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show($"Удалить остановку \"{stopName}\" (№{deletedOrder})?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 try
                 {
-                    string sql = "DELETE FROM Routes_Stops WHERE route_id = @rid AND stop_id = @sid";
-                    Database.ExecuteNonQuery(sql, new NpgsqlParameter("@rid", routeId), new NpgsqlParameter("@sid", stopId));
+                    string sqlDel = "DELETE FROM Routes_Stops WHERE route_id = @rid AND stop_id = @sid";
+                    Database.ExecuteNonQuery(sqlDel, new NpgsqlParameter("@rid", routeId), new NpgsqlParameter("@sid", stopId));
+                    string sqlShift = "UPDATE Routes_Stops SET stop_order = stop_order - 1 WHERE route_id = @rid AND stop_order > @ord";
+                    Database.ExecuteNonQuery(sqlShift, new NpgsqlParameter("@rid", routeId), new NpgsqlParameter("@ord", deletedOrder));
+
+                    string sqlResetStart = "UPDATE Routes_Stops SET arrival_time_from_start = 0, price_from_start = 0 WHERE route_id = @rid AND stop_order = 1";
+                    Database.ExecuteNonQuery(sqlResetStart, new NpgsqlParameter("@rid", routeId));
 
                     UpdateRouteHeader(routeId);
+
+                    LoadRoutes(routeId);
                     LoadRouteStops(routeId);
-                    LoadRoutes();
                 }
                 catch (Exception ex)
                 {
@@ -194,13 +206,12 @@ namespace PassengerTransportApp
 
             int routeId = Convert.ToInt32(dgvRoutes.SelectedRows[0].Cells["route_id"].Value);
 
-            // Открываем форму в режиме редактирования (передаем ID)
             RouteAddForm form = new RouteAddForm(routeId);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
-                LoadRoutes(); // Обновляем список маршрутов
-                LoadRouteStops(routeId); // Обновляем список остановок (цена могла измениться)
+                LoadRoutes(routeId); 
+                LoadRouteStops(routeId); 
             }
         }
         private void btnAddRoute_Click(object sender, EventArgs e)
@@ -208,7 +219,7 @@ namespace PassengerTransportApp
             RouteAddForm form = new RouteAddForm();
             if (form.ShowDialog() == DialogResult.OK)
             {
-                LoadRoutes(); // Обновляем список, чтобы увидеть новый маршрут
+                LoadRoutes(form.CreatedRouteId);
             }
         }
 
@@ -234,19 +245,14 @@ namespace PassengerTransportApp
             {
                 try
                 {
-                    // Попытка удалить маршрут
                     Database.ExecuteNonQuery($"DELETE FROM Routes WHERE route_id = {routeId}");
 
-                    // Если удаление прошло успешно (ошибки не было):
                     MessageBox.Show("Маршрут успешно удален.", "Успех");
                     LoadRoutes();
                     dgvStops.DataSource = null;
                 }
                 catch (PostgresException ex) when (ex.SqlState == "23503")
                 {
-                    // ПЕРЕХВАТ ОШИБКИ ВНЕШНЕГО КЛЮЧА
-                    // Код 23503 означает "Foreign key violation" (есть связанные записи)
-
                     MessageBox.Show("Невозможно удалить маршрут, так как в Архиве (Корзине) остались старые рейсы, связанные с ним.\n\n" +
                                     "ЧТО НУЖНО СДЕЛАТЬ:\n" +
                                     "1. Закройте это окно.\n" +
@@ -257,7 +263,6 @@ namespace PassengerTransportApp
                 }
                 catch (Exception ex)
                 {
-                    // Любые другие ошибки
                     MessageBox.Show("Произошла ошибка: " + ex.Message);
                 }
             }

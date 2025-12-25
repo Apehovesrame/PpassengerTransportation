@@ -7,7 +7,9 @@ namespace PassengerTransportApp
 {
     public partial class RouteAddForm : Form
     {
-        private int? _routeId; // Если null - создание, если есть число - редактирование
+        private int? _routeId;
+
+        public int CreatedRouteId { get; private set; }
 
         public RouteAddForm(int? routeId = null)
         {
@@ -75,8 +77,6 @@ namespace PassengerTransportApp
                         new NpgsqlParameter("@dur", (int)numDuration.Value),
                         new NpgsqlParameter("@id", _routeId));
 
-                    // 2. Обновляем Цену и Время у ПОСЛЕДНЕЙ остановки этого маршрута
-                    // (Ищем остановку с максимальным порядковым номером)
                     string sqlUpdateLastStop = @"
                         UPDATE Routes_Stops 
                         SET price_from_start = @price, arrival_time_from_start = @time
@@ -92,8 +92,6 @@ namespace PassengerTransportApp
                 }
                 else
                 {
-                    // === РЕЖИМ СОЗДАНИЯ (INSERT) — как и было ===
-
                     string sqlRoute = @"INSERT INTO Routes (route_number, departure_point, destination_point, duration_minutes)
                                         VALUES (@num, @dep, @dest, @dur) RETURNING route_id";
 
@@ -119,7 +117,7 @@ namespace PassengerTransportApp
                         new NpgsqlParameter("@sid", endStopId),
                         new NpgsqlParameter("@time", (int)numDuration.Value),
                         new NpgsqlParameter("@price", numPrice.Value));
-
+                    CreatedRouteId = newRouteId;
                     MessageBox.Show("Маршрут создан!", "Успех");
                 }
 
