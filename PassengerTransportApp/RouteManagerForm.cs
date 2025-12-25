@@ -230,7 +230,7 @@ namespace PassengerTransportApp
             int routeId = Convert.ToInt32(dgvRoutes.SelectedRows[0].Cells["route_id"].Value);
             string routeName = dgvRoutes.SelectedRows[0].Cells["Направление"].Value.ToString();
 
-            // 1. Сначала проверяем АКТИВНЫЕ рейсы (как и раньше, это полезно)
+            // 1. Проверяем АКТИВНЫЕ рейсы
             string sqlCheck = $"SELECT COUNT(*) FROM Trips WHERE route_id = {routeId} AND is_deleted = FALSE";
             long activeTrips = (long)Database.ExecuteQuery(sqlCheck).Rows[0][0];
 
@@ -247,7 +247,14 @@ namespace PassengerTransportApp
                 {
                     Database.ExecuteNonQuery($"DELETE FROM Routes WHERE route_id = {routeId}");
 
-                    MessageBox.Show("Маршрут успешно удален.", "Успех");
+                    string sqlCleanOrphans = @"
+                        DELETE FROM Stops 
+                        WHERE stop_id NOT IN (SELECT DISTINCT stop_id FROM Routes_Stops)";
+
+                    Database.ExecuteNonQuery(sqlCleanOrphans);
+
+                    MessageBox.Show("Маршрут удален.\nНеиспользуемые города также были удалены из справочника.", "Успех");
+
                     LoadRoutes();
                     dgvStops.DataSource = null;
                 }
@@ -259,7 +266,7 @@ namespace PassengerTransportApp
                                     "2. В главном меню поставьте галочку 'Показать удаленные'.\n" +
                                     "3. Найдите старые рейсы этого маршрута и нажмите кнопку 'Удалить навсегда' (или очистите весь архив).\n\n" +
                                     "Только после полной очистки истории можно удалить сам маршрут.",
-                                    "Ошибка: Связанные данные", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    "Ошибка: Связанные данные в Архиве", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
