@@ -42,10 +42,8 @@ namespace PassengerTransportApp
 
         private void TicketSaleForm_Load(object sender, EventArgs e) { }
 
-        // === ОБНОВЛЕННАЯ ЗАГРУЗКА ОСТАНОВОК И ЦЕН ===
         private void LoadStops()
         {
-            // Берем ID, Название и ЦЕНУ
             string sql = @"
                 SELECT s.stop_id, s.name, rs.price_from_start
                 FROM Trips t
@@ -61,7 +59,6 @@ namespace PassengerTransportApp
 
             foreach (DataRow row in dt.Rows)
             {
-                // Пропускаем начальную остановку (где цена 0), так как туда билет купить нельзя (мы уже там)
                 decimal price = Convert.ToDecimal(row["price_from_start"]);
                 if (price > 0)
                 {
@@ -75,15 +72,14 @@ namespace PassengerTransportApp
             }
 
             if (cmbStops.Items.Count > 0)
-                cmbStops.SelectedIndex = 0; // Выбираем первую по умолчанию
+                cmbStops.SelectedIndex = 0; 
         }
 
-        // === АВТОМАТИЧЕСКАЯ СМЕНА ЦЕНЫ ===
         private void CmbStops_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cmbStops.SelectedItem is StopItem selectedStop)
             {
-                numPrice.Value = selectedStop.Price; // Подставляем цену в поле
+                numPrice.Value = selectedStop.Price; 
             }
         }
 
@@ -92,33 +88,28 @@ namespace PassengerTransportApp
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != ' '))
                 e.Handled = true;
         }
-        // Универсальный метод: разрешает только Буквы, Пробел, Дефис и Backspace
         private void txtName_KeyPress(object sender, KeyPressEventArgs e)
         {
             TextBox txt = sender as TextBox;
 
-            // 1. Разрешаем Backspace
             if (e.KeyChar == (char)Keys.Back) return;
 
-            // 2. Запрещаем пробел или дефис, если это ПЕРВЫЙ символ
             if (txt.SelectionStart == 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
             {
                 e.Handled = true;
                 return;
             }
 
-            // 3. Запрещаем двойное тире (если предыдущий символ уже тире)
             if (txt.SelectionStart > 0 && (e.KeyChar == '-' || e.KeyChar == ' '))
             {
                 char lastChar = txt.Text[txt.SelectionStart - 1];
                 if (lastChar == '-' || lastChar == ' ')
                 {
-                    e.Handled = true; // Блокируем повтор
+                    e.Handled = true; 
                     return;
                 }
             }
 
-            // 4. Разрешаем только буквы, пробел и дефис
             if (!char.IsLetter(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
             {
                 e.Handled = true;
@@ -178,7 +169,6 @@ namespace PassengerTransportApp
             Color errorColor = Color.MistyRose;
             Color normalColor = SystemColors.Window;
 
-            // Сброс цветов
             txtLastName.BackColor = normalColor;
             txtFirstName.BackColor = normalColor;
             txtMiddleName.BackColor = normalColor;
@@ -187,7 +177,6 @@ namespace PassengerTransportApp
 
             string namePattern = @"^[а-яА-Яa-zA-Z]+(?:[- ][а-яА-Яa-zA-Z]+)*$";
 
-            // Проверка Фамилии
             if (string.IsNullOrWhiteSpace(txtLastName.Text) || !Regex.IsMatch(txtLastName.Text, namePattern))
             {
                 txtLastName.BackColor = errorColor;
@@ -195,14 +184,12 @@ namespace PassengerTransportApp
                 isValid = false;
             }
 
-            // Проверка Имени
             if (string.IsNullOrWhiteSpace(txtFirstName.Text) || !Regex.IsMatch(txtFirstName.Text, namePattern))
             {
                 txtFirstName.BackColor = errorColor;
                 isValid = false;
             }
 
-            // 1. Проверка на пустоту
             if (string.IsNullOrWhiteSpace(txtLastName.Text))
             {
                 txtLastName.BackColor = errorColor;
@@ -219,7 +206,6 @@ namespace PassengerTransportApp
                 isValid = false;
             }
 
-            // 2. НОВАЯ ПРОВЕРКА: Длина текста
             if (txtLastName.Text.Length > 20)
             {
                 MessageBox.Show("Фамилия слишком длинная! Максимум 20 букв.", "Ошибка формата");
@@ -274,17 +260,18 @@ namespace PassengerTransportApp
             try
             {
                 int passengerId = GetOrCreatePassenger();
-                string sqlCheckPass = $"SELECT COUNT(*) FROM Tickets WHERE trip_id = {_tripId} AND passenger_id = {passengerId}";
-                long count = (long)Database.ExecuteQuery(sqlCheckPass).Rows[0][0];
+                if (passengerId == -1) return;
 
-                if (count > 0)
+                string sqlCheckDuplicate = $"SELECT COUNT(*) FROM Tickets WHERE trip_id = {_tripId} AND passenger_id = {passengerId}";
+                long existingTickets = (long)Database.ExecuteQuery(sqlCheckDuplicate).Rows[0][0];
+
+                if (existingTickets > 0)
                 {
                     MessageBox.Show("Этот пассажир уже имеет билет на данный рейс!", "Дубликат пассажира", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 if (passengerId == -1) return;
 
-                // Получаем ID остановки из выбранного объекта StopItem
                 int destinationStopId = ((StopItem)cmbStops.SelectedItem).Id;
 
                 string sqlTicket = @"
@@ -339,8 +326,6 @@ namespace PassengerTransportApp
             }
         }
     }
-
-    // Вспомогательный класс для выпадающего списка
     public class StopItem
     {
         public int Id { get; set; }

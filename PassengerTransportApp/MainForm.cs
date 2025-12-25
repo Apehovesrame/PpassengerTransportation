@@ -197,23 +197,57 @@ namespace PassengerTransportApp
 
             int tripId = Convert.ToInt32(dgvTrips.SelectedRows[0].Cells["trip_id"].Value);
 
-            string sqlCheck = $"SELECT COUNT(*) FROM Tickets WHERE trip_id = {tripId}";
-            long soldCount = (long)Database.ExecuteQuery(sqlCheck).Rows[0][0];
+            // 1. ПОЛУЧАЕМ ДАННЫЕ О РЕЙСЕ (Дату отправления и кол-во билетов)
+            string sqlInfo = $@"
+                SELECT 
+                    departure_datetime,
+                    (SELECT COUNT(*) FROM Tickets WHERE trip_id = {tripId}) AS ticket_count
+                FROM Trips
+                WHERE trip_id = {tripId}";
 
-            if (soldCount > 0)
+            DataTable dtInfo = Database.ExecuteQuery(sqlInfo);
+            if (dtInfo.Rows.Count == 0) return; // На всякий случай
+
+            DateTime departure = (DateTime)dtInfo.Rows[0]["departure_datetime"];
+            long soldCount = (long)dtInfo.Rows[0]["ticket_count"];
+
+            // === ГЛАВНАЯ ЛОГИКА ===
+
+            // СЦЕНАРИЙ 1: Рейс уже в прошлом
+            if (departure < DateTime.Now)
+            {
+                if (MessageBox.Show("Этот рейс уже состоялся. Переместить его в архив?", "Архивация", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                {
+                    Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = TRUE WHERE trip_id = {tripId}");
+                    LoadTrips();
+                }
+            }
+            // СЦЕНАРИЙ 2: Рейс в будущем, но билетов нет
+            else if (soldCount == 0)
+            {
+                if (MessageBox.Show("Отменить этот рейс? (Билеты не проданы)", "Отмена", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = TRUE WHERE trip_id = {tripId}");
+                    LoadTrips();
+                }
+            }
+            // СЦЕНАРИЙ 3: Рейс в будущем, и на него проданы билеты (САМЫЙ СЛОЖНЫЙ)
+            else
             {
                 string word = GetDeclension(soldCount, "билет", "билета", "билетов");
-
-                string message = $"На этот рейс уже продано {soldCount} {word}!\n\n" +
-                                 "Вы хотите оформить ПОЛНЫЙ ВОЗВРАТ средств пассажирам и отменить рейс?\n" +
+                string message = $"На этот рейс (в будущем) уже продано {soldCount} {word}!\n\n" +
+                                 "Вы хотите оформить ПОЛНЫЙ ВОЗВРАТ средств и отменить рейс?\n" +
                                  "(Билеты будут удалены из базы, выручка аннулирована)";
 
                 if (MessageBox.Show(message, "Массовый возврат", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                 {
                     try
                     {
+                        // Удаляем билеты (возврат)
                         Database.ExecuteNonQuery($"DELETE FROM Tickets WHERE trip_id = {tripId}");
+                        // Архивируем рейс
                         Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = TRUE WHERE trip_id = {tripId}");
+
                         MessageBox.Show($"Успешно возвращено {soldCount} билетов. Рейс отменен.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadTrips();
                     }
@@ -221,14 +255,6 @@ namespace PassengerTransportApp
                     {
                         MessageBox.Show("Ошибка при возврате: " + ex.Message);
                     }
-                }
-            }
-            else
-            {
-                if (MessageBox.Show("Переместить рейс в архив (отменить)?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = TRUE WHERE trip_id = {tripId}");
-                    LoadTrips();
                 }
             }
         }

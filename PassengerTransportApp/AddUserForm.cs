@@ -35,11 +35,12 @@ namespace PassengerTransportApp
             {
                 // 1. Хешируем пароль
                 string passHash = HashHelper.ComputeSha256Hash(txtPassword.Text);
+                string login = txtLogin.Text.Trim();
 
                 // 2. Вставка в таблицу Авторизации
                 string sqlAuth = "INSERT INTO Authorizations (login, password_hash) VALUES (@log, @hash)";
                 Database.ExecuteNonQuery(sqlAuth,
-                    new NpgsqlParameter("@log", txtLogin.Text.Trim()),
+                    new NpgsqlParameter("@log", login),
                     new NpgsqlParameter("@hash", passHash));
 
                 // 3. Разделяем ФИО
@@ -54,17 +55,24 @@ namespace PassengerTransportApp
 
                 Database.ExecuteNonQuery(sqlUser,
                     new NpgsqlParameter("@rid", cmbRole.SelectedValue),
-                    new NpgsqlParameter("@log", txtLogin.Text.Trim()),
+                    new NpgsqlParameter("@log", login),
                     new NpgsqlParameter("@ln", last),
                     new NpgsqlParameter("@fn", first),
                     new NpgsqlParameter("@mn", mid));
 
                 MessageBox.Show("Сотрудник добавлен успешно!");
+                this.DialogResult = DialogResult.OK; // Установим флаг для обновления таблицы
                 this.Close();
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505")
+            {
+                // Ловим ошибку уникальности (23505) и выводим понятное сообщение
+                MessageBox.Show($"Логин '{txtLogin.Text}' уже занят!\nПожалуйста, выберите другой.",
+                    "Ошибка: Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка (возможно логин занят): " + ex.Message);
+                MessageBox.Show("Произошла ошибка: " + ex.Message);
             }
         }
         private void txtName_KeyPress(object sender, KeyPressEventArgs e)
