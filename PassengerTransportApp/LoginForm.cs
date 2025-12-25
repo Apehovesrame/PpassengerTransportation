@@ -1,4 +1,4 @@
-﻿using Npgsql; // Не забудь добавить этот using наверху!
+﻿using Npgsql; 
 using System;
 using System.Data;
 using System.Windows.Forms;
@@ -23,7 +23,6 @@ namespace PassengerTransportApp
                 return;
             }
 
-            // 1. Добавляем u.middle_name в запрос
             string sql = @"
                 SELECT u.user_id, u.last_name, u.first_name, u.middle_name, r.role_name
                 FROM Users u
@@ -43,7 +42,6 @@ namespace PassengerTransportApp
                 int userId = Convert.ToInt32(row["user_id"]);
                 string role = row["role_name"].ToString();
 
-                // 2. Формируем красивые инициалы (Фамилия И.О.)
                 string lastName = row["last_name"].ToString();
                 string firstName = row["first_name"].ToString();
                 string middleName = row["middle_name"].ToString();
@@ -54,8 +52,6 @@ namespace PassengerTransportApp
                 {
                     shortFio += middleName.Substring(0, 1) + ".";
                 }
-
-                MessageBox.Show($"Добро пожаловать, {shortFio}!\nВаша роль: {role}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 MainForm mainForm = new MainForm(userId, role, shortFio);
                 mainForm.Show();
