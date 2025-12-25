@@ -382,5 +382,20 @@ namespace PassengerTransportApp
         }
 
         private void dgvTrips_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+
+        private void panelTop_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void statusLabelUser_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

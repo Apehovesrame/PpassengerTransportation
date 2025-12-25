@@ -19,7 +19,7 @@ namespace PassengerTransportApp
             txtFirst.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
             txtMiddle.KeyPress += new KeyPressEventHandler(txtName_KeyPress);
 
-            txtPassport.MaxLength = 12; // 10 цифр + возможные пробелы
+            txtPassport.MaxLength = 11; 
             txtPassport.KeyPress += new KeyPressEventHandler(txtPassport_KeyPress);
         }
 
