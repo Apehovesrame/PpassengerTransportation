@@ -27,14 +27,12 @@ namespace PassengerTransportApp
 
         public MainForm() : this(0, "Гость", "Неизвестно") { }
 
-        // ОБРАБОТКА КНОПКИ ВЫХОД
         private void btnLogout_Click(object sender, EventArgs e)
         {
             _isLogout = true; 
             this.Close();  
         }
 
-        // ОБРАБОТКА ЗАКРЫТИЯ ФОРМЫ
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (_isLogout)
@@ -49,7 +47,6 @@ namespace PassengerTransportApp
 
         private void ApplyRolePermissions()
         {
-            // Скрываем все административные кнопки
             btnBuses.Visible = false;
             btnReports.Visible = false;
             btnManageDrivers.Visible = false;
@@ -61,13 +58,11 @@ namespace PassengerTransportApp
             btnRouteManager.Visible = false;
             btnAddUser.Visible = false;
 
-            // Скрываем элементы "Мягкого удаления"
             chkShowDeleted.Visible = false;
             btnRestoreTrip.Visible = false;
             btnHardDelete.Visible = false;
             btnClearArchive.Visible = false;
 
-            // Включаем в зависимости от роли
             switch (_userRole)
             {
                 case "Администратор":
@@ -113,7 +108,6 @@ namespace PassengerTransportApp
 
         private void LoadTrips()
         {
-            // Фильтр: показываем активные (false) или удаленные (true)
             string deletedFilter = chkShowDeleted.Checked ? "TRUE" : "FALSE";
 
             string sql = $@" 
@@ -197,7 +191,6 @@ namespace PassengerTransportApp
 
             int tripId = Convert.ToInt32(dgvTrips.SelectedRows[0].Cells["trip_id"].Value);
 
-            // 1. ПОЛУЧАЕМ ДАННЫЕ О РЕЙСЕ (Дату отправления и кол-во билетов)
             string sqlInfo = $@"
                 SELECT 
                     departure_datetime,
@@ -211,9 +204,6 @@ namespace PassengerTransportApp
             DateTime departure = (DateTime)dtInfo.Rows[0]["departure_datetime"];
             long soldCount = (long)dtInfo.Rows[0]["ticket_count"];
 
-            // === ГЛАВНАЯ ЛОГИКА ===
-
-            // СЦЕНАРИЙ 1: Рейс уже в прошлом
             if (departure < DateTime.Now)
             {
                 if (MessageBox.Show("Этот рейс уже состоялся. Переместить его в архив?", "Архивация", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
@@ -222,7 +212,6 @@ namespace PassengerTransportApp
                     LoadTrips();
                 }
             }
-            // СЦЕНАРИЙ 2: Рейс в будущем, но билетов нет
             else if (soldCount == 0)
             {
                 if (MessageBox.Show("Отменить этот рейс? (Билеты не проданы)", "Отмена", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -231,7 +220,6 @@ namespace PassengerTransportApp
                     LoadTrips();
                 }
             }
-            // СЦЕНАРИЙ 3: Рейс в будущем, и на него проданы билеты (САМЫЙ СЛОЖНЫЙ)
             else
             {
                 string word = GetDeclension(soldCount, "билет", "билета", "билетов");
@@ -243,9 +231,7 @@ namespace PassengerTransportApp
                 {
                     try
                     {
-                        // Удаляем билеты (возврат)
                         Database.ExecuteNonQuery($"DELETE FROM Tickets WHERE trip_id = {tripId}");
-                        // Архивируем рейс
                         Database.ExecuteNonQuery($"UPDATE Trips SET is_deleted = TRUE WHERE trip_id = {tripId}");
 
                         MessageBox.Show($"Успешно возвращено {soldCount} билетов. Рейс отменен.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
